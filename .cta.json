@@ -16,13 +16,5 @@
   "routerOnly": false,
   "version": 1,
   "framework": "react",
-  "chosenAddOns": [
-    "cloudflare",
-    "better-auth",
-    "form",
-    "compiler",
-    "prisma",
-    "store",
-    "shadcn"
-  ]
+  "chosenAddOns": ["cloudflare", "better-auth", "form", "compiler", "prisma", "store", "shadcn"]
 }
