@@ -1,4 +1,3 @@
-// oxlint-disable-next-line import/no-unassigned-import
 import "@tanstack/react-start/server-only"
 import { betterAuth } from "better-auth"
 import { tanstackStartCookies } from "better-auth/tanstack-start"
