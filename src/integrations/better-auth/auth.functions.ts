@@ -8,12 +8,12 @@ interface GetUserServerQuery {
   disableRefresh?: boolean | undefined
 }
 
-export const getUser = createServerFn({ method: "GET" }).handler(async () => {
-  const user = await getUserServer()
+export const $getUser = createServerFn({ method: "GET" }).handler(async () => {
+  const user = await _getUser()
   return user
 })
 
-export const getUserServer = createServerOnlyFn(async (query?: GetUserServerQuery) => {
+export const _getUser = createServerOnlyFn(async (query?: GetUserServerQuery) => {
   const session = await auth.api.getSession({
     headers: getRequest().headers,
     query,
