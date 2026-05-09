@@ -1,10 +1,21 @@
 import { TanStackDevtools } from "@tanstack/react-devtools"
-import { HeadContent, Scripts, createRootRoute } from "@tanstack/react-router"
+import type { QueryClient } from "@tanstack/react-query"
+import { HeadContent, Scripts, createRootRouteWithContext } from "@tanstack/react-router"
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools"
+
+import { AnchoredToastProvider, ToastProvider } from "#/components/ui/toast"
+import type { AuthQueryResult } from "#/integrations/better-auth/queries"
+import TanStackQueryDevtools from "#/integrations/tanstack-query/devtools"
+import { ThemeProvider } from "@/components/theme-provider"
 
 import appCss from "../styles.css?url"
 
-export const Route = createRootRoute({
+interface MyRouterContext {
+  queryClient: QueryClient
+  user: AuthQueryResult
+}
+
+export const Route = createRootRouteWithContext<MyRouterContext>()({
   head: () => ({
     meta: [
       {
@@ -30,12 +41,16 @@ export const Route = createRootRoute({
 
 function RootDocument({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <HeadContent />
       </head>
       <body>
-        {children}
+        <ThemeProvider>
+          <ToastProvider position="bottom-right">
+            <AnchoredToastProvider>{children}</AnchoredToastProvider>
+          </ToastProvider>
+        </ThemeProvider>
         <TanStackDevtools
           config={{
             position: "bottom-right",
@@ -45,6 +60,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
               name: "Tanstack Router",
               render: <TanStackRouterDevtoolsPanel />,
             },
+            TanStackQueryDevtools,
           ]}
         />
         <Scripts />

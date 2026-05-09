@@ -1,10 +1,8 @@
-import type * as React from "react";
-import { cn } from "#/lib/utils.ts";
+import type * as React from "react"
 
-export function Frame({
-  className,
-  ...props
-}: React.ComponentProps<"div">): React.ReactElement {
+import { cn } from "#/lib/utils.ts"
+
+export function Frame({ className, ...props }: React.ComponentProps<"div">): React.ReactElement {
   return (
     <div
       className={cn(
@@ -15,7 +13,7 @@ export function Frame({
       data-slot="frame"
       {...props}
     />
-  );
+  )
 }
 
 export function FramePanel({
@@ -31,7 +29,7 @@ export function FramePanel({
       data-slot="frame-panel"
       {...props}
     />
-  );
+  )
 }
 
 export function FrameHeader({
@@ -44,7 +42,7 @@ export function FrameHeader({
       data-slot="frame-panel-header"
       {...props}
     />
-  );
+  )
 }
 
 export function FrameTitle({
@@ -53,11 +51,11 @@ export function FrameTitle({
 }: React.ComponentProps<"div">): React.ReactElement {
   return (
     <div
-      className={cn("font-semibold text-sm", className)}
+      className={cn("text-sm font-semibold", className)}
       data-slot="frame-panel-title"
       {...props}
     />
-  );
+  )
 }
 
 export function FrameDescription({
@@ -66,22 +64,16 @@ export function FrameDescription({
 }: React.ComponentProps<"div">): React.ReactElement {
   return (
     <div
-      className={cn("text-muted-foreground text-sm", className)}
+      className={cn("text-sm text-muted-foreground", className)}
       data-slot="frame-panel-description"
       {...props}
     />
-  );
+  )
 }
 
 export function FrameFooter({
   className,
   ...props
 }: React.ComponentProps<"footer">): React.ReactElement {
-  return (
-    <footer
-      className={cn("px-5 py-4", className)}
-      data-slot="frame-panel-footer"
-      {...props}
-    />
-  );
+  return <footer className={cn("px-5 py-4", className)} data-slot="frame-panel-footer" {...props} />
 }
