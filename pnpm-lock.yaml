@@ -14,6 +14,12 @@ importers:
       '@cloudflare/vite-plugin':
         specifier: ^1.36.3
         version: 1.36.3(vite@8.0.11(@types/node@25.6.1)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.21.0))(workerd@1.20260507.1)(wrangler@4.90.0)
+      '@dnd-kit/dom':
+        specifier: ^0.4.0
+        version: 0.4.0
+      '@dnd-kit/react':
+        specifier: ^0.4.0
+        version: 0.4.0(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
       '@fontsource-variable/geist':
         specifier: ^5.2.8
         version: 5.2.8
@@ -35,9 +41,9 @@ importers:
       '@tanstack/react-devtools':
         specifier: latest
         version: 0.10.2(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(csstype@3.2.3)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(solid-js@1.9.12)
-      '@tanstack/react-form':
-        specifier: latest
-        version: 1.29.1(@tanstack/react-start@1.167.65(crossws@0.4.5(srvx@0.11.15))(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(vite@8.0.11(@types/node@25.6.1)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.21.0)))(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
+      '@tanstack/react-form-start':
+        specifier: ^1.29.3
+        version: 1.29.3(@tanstack/react-start@1.167.65(crossws@0.4.5(srvx@0.11.15))(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(vite@8.0.11(@types/node@25.6.1)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.21.0)))(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
       '@tanstack/react-query':
         specifier: ^5.100.9
         version: 5.100.9(react@19.2.6)
@@ -80,6 +86,9 @@ importers:
       lucide-react:
         specifier: ^1.14.0
         version: 1.14.0(react@19.2.6)
+      nanoid:
+        specifier: ^5.1.11
+        version: 5.1.11
       nitro:
         specifier: npm:nitro-nightly@latest
         version: nitro-nightly@3.0.1-20260508-123613-d2e64906(@electric-sql/pglite@0.4.1)(better-sqlite3@12.9.0)(chokidar@5.0.0)(dotenv@17.4.2)(giget@3.2.0)(jiti@2.7.0)(lru-cache@11.3.6)(miniflare@4.20260507.1)(mysql2@3.15.3)(vite@8.0.11(@types/node@25.6.1)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.21.0))
@@ -493,6 +502,27 @@ packages:
 
   '@date-fns/tz@1.4.1':
     resolution: {integrity: sha512-P5LUNhtbj6YfI3iJjw5EL9eUAG6OitD0W3fWQcpQjDRc/QIsL0tRNuO1PcDvPccWL1fSTXXdE1ds+l95DV/OFA==}
+
+  '@dnd-kit/abstract@0.4.0':
+    resolution: {integrity: sha512-loEEJxKT5oLOLeRBJVTO9qpgvvW/Qq902xO20v1JMbpANuN/NLurUdpxIwNpVz+RtOSyzznnbc7lO7psmOhc9A==}
+
+  '@dnd-kit/collision@0.4.0':
+    resolution: {integrity: sha512-oOHHUkH1h9Vl2m8TwLw/mPHA7Blf+s0PYcRoLNWNBVxDzugJKZo8WdpU58EMu9qkqyQGrR/YTOozGiMPhlqZ5Q==}
+
+  '@dnd-kit/dom@0.4.0':
+    resolution: {integrity: sha512-mJDKt0BtlHXetZyrvZXh6++aycleIbYWH/OVC4nlszDh8NvW7q8dfsxFllR5RtLKLcykLaI4o545Figfks/HZQ==}
+
+  '@dnd-kit/geometry@0.4.0':
+    resolution: {integrity: sha512-d1n+CU54V/qF/g792bmJK2oR4f5jOL7Pls2IfC+j9f5UBECpjsYbcPZ/krom/z8LgieqvMh1qrUkdcBjJJ7vpg==}
+
+  '@dnd-kit/react@0.4.0':
+    resolution: {integrity: sha512-J2/N4CpQf98zJBZhMljDNsc+QR4VtUKU9BRO1+Di4OGaB1qafMC4qZ11xKXOkjw+d7h82FRSXmXCo0c8+VWaWg==}
+    peerDependencies:
+      react: ^18.0.0 || ^19.0.0
+      react-dom: ^18.0.0 || ^19.0.0
+
+  '@dnd-kit/state@0.4.0':
+    resolution: {integrity: sha512-vVdwOY9VsYdMNa7Z0xQhTXlzHqCcCugGuoM1kzvZhnZ0tYVPRdmIhWfeO6Y2ZoN92JwYAyJRRNl4ICkEe2mneg==}
 
   '@electric-sql/pglite-socket@0.1.1':
     resolution: {integrity: sha512-p2hoXw3Z3LQHwTeikdZNsFBOvXGqKY2hk51BBw+8NKND8eoH+8LFOtW9Z8CQKmTJ2qqGYu82ipqiyFZOTTXNfw==}
@@ -1474,6 +1504,9 @@ packages:
 
   '@poppinss/exception@1.2.3':
     resolution: {integrity: sha512-dCED+QRChTVatE9ibtoaxc+WkdzOSjYTKi/+uacHWIsfodVfpsueo3+DKpgU5Px8qXjgmXkSvhXvSCz3fnP9lw==}
+
+  '@preact/signals-core@1.14.1':
+    resolution: {integrity: sha512-vxPpfXqrwUe9lpjqfYNjAF/0RF/eFGeLgdJzdmIIZjpOnTmGmAB4BjWone562mJGMRP4frU6iZ6ei3PDsu52Ng==}
 
   '@prisma/adapter-better-sqlite3@7.8.0':
     resolution: {integrity: sha512-9p0HvQNaRoOaUForDcp1MPIjylmCamYQjQpEogpdesLr14g3NwAsYR3bHL9wFi8tn21TPDVQPzcZi+SxXEokSA==}
@@ -2640,8 +2673,8 @@ packages:
     peerDependencies:
       eslint: ^8.57.0 || ^9.0.0 || ^10.0.0
 
-  '@tanstack/form-core@1.29.1':
-    resolution: {integrity: sha512-NIYPO36eEu7nSWvMpbFDQaBWyVtnH/C8fsZ3/XpJUT4uOWgmxsiUvHGbTbDNIQTXAKIkhwEl0sUrqBNn2SfUnw==}
+  '@tanstack/form-core@1.29.3':
+    resolution: {integrity: sha512-NNluDFsF/wjtOuhbqRJokVmR3GNuWQDeLeykcfDaEiod6mQ+/iwaXkLGVdlzXXLBOd+cb34KWP8seVaPhh5N6A==}
 
   '@tanstack/history@1.161.6':
     resolution: {integrity: sha512-NaOGLRrddszbQj9upGat6HG/4TKvXLvu+osAIgfxPYA+eIvYKv8GKDJOrY2D3/U9MRnKfMWD7bU4jeD4xmqyIg==}
@@ -2666,8 +2699,17 @@ packages:
       react: '>=16.8'
       react-dom: '>=16.8'
 
-  '@tanstack/react-form@1.29.1':
-    resolution: {integrity: sha512-hVHk4g0phd0HxRsv2ry6Xt8BqmalT55Q3cokhJBCC1St0hcGZhgwJJbohm9atao45BPG9e55DGvtbwExqZe35g==}
+  '@tanstack/react-form-start@1.29.3':
+    resolution: {integrity: sha512-lgd8jeUVlcNnA5GCgZl5TC0Fvp/rQYAcGFogz0kwNSQCz1R1CYAtYw5Q+FTrwPJX8GrI/jU5FUKQwN51r/c+Lg==}
+    peerDependencies:
+      '@tanstack/react-start': ^1.134.9
+      react: ^17.0.0 || ^18.0.0 || ^19.0.0
+    peerDependenciesMeta:
+      '@tanstack/react-start':
+        optional: true
+
+  '@tanstack/react-form@1.29.3':
+    resolution: {integrity: sha512-L5XPwEGLu461cfV/7Vd7JF7+/E4ysf98Oex/gr77x6k2fQjt/cPuzi7C0NnVgMfbWMbl51bSnwjnoCVwgRF1Yg==}
     peerDependencies:
       '@tanstack/react-start': '*'
       react: ^17.0.0 || ^18.0.0 || ^19.0.0
@@ -3321,6 +3363,9 @@ packages:
   decimal.js@10.6.0:
     resolution: {integrity: sha512-YpgQiITW3JXGntzdUmyUR1V812Hn8T1YVXhCu+wO3OpS4eU9l4YdD3qjyiKdV6mvV29zapkMeD390UVEf2lkUg==}
 
+  decode-formdata@0.9.0:
+    resolution: {integrity: sha512-q5uwOjR3Um5YD+ZWPOF/1sGHVW9A5rCrRwITQChRXlmPkxDFBqCm4jNTIVdGHNH9OnR+V9MoZVgRhsFb+ARbUw==}
+
   decompress-response@6.0.0:
     resolution: {integrity: sha512-aW35yZM6Bb/4oJlZncMH2LCoZtJXTRxES17vE3hoRiowU2kWHaJKFkSBDnDR+cm9J+9QhXmREyIfv0pji9ejCQ==}
     engines: {node: '>=10'}
@@ -3356,6 +3401,9 @@ packages:
 
   detect-node-es@1.1.0:
     resolution: {integrity: sha512-ypdmJU/TbBby2Dxibuv7ZLW3Bs1QEmM7nHjEANfohJLvE0XVujisn1qPJcZxg+qDucsr+bP6fLD1rPS3AhJ7EQ==}
+
+  devalue@5.8.0:
+    resolution: {integrity: sha512-2zA9pFEsnp7vWBZbXF5JAgAq0fsUIt/1XPbRiAmRV3lp/2C3upzH+sADiyy66aFCihoLEsrQHxNM5w1gIDfsBg==}
 
   diff@8.0.4:
     resolution: {integrity: sha512-DPi0FmjiSU5EvQV0++GFDOJ9ASQUVFh5kD+OzOnYdi7n3Wpm9hWWGfB/O2blfHcMVTL5WkQXSnRiK9makhrcnw==}
@@ -3947,6 +3995,11 @@ packages:
   nanoid@3.3.12:
     resolution: {integrity: sha512-ZB9RH/39qpq5Vu6Y+NmUaFhQR6pp+M2Xt76XBnEwDaGcVAqhlvxrl3B2bKS5D3NH3QR76v3aSrKaF/Kiy7lEtQ==}
     engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
+    hasBin: true
+
+  nanoid@5.1.11:
+    resolution: {integrity: sha512-v+KEsUv2ps74PaSKv0gHTxTCgMXOIfBEbaqa6w6ISIGC7ZsvHN4N9oJ8d4cmf0n5oTzQz2SLmThbQWhjd/8eKg==}
+    engines: {node: ^18 || >=20}
     hasBin: true
 
   nanostores@1.3.0:
@@ -5147,6 +5200,45 @@ snapshots:
 
   '@date-fns/tz@1.4.1': {}
 
+  '@dnd-kit/abstract@0.4.0':
+    dependencies:
+      '@dnd-kit/geometry': 0.4.0
+      '@dnd-kit/state': 0.4.0
+      tslib: 2.8.1
+
+  '@dnd-kit/collision@0.4.0':
+    dependencies:
+      '@dnd-kit/abstract': 0.4.0
+      '@dnd-kit/geometry': 0.4.0
+      tslib: 2.8.1
+
+  '@dnd-kit/dom@0.4.0':
+    dependencies:
+      '@dnd-kit/abstract': 0.4.0
+      '@dnd-kit/collision': 0.4.0
+      '@dnd-kit/geometry': 0.4.0
+      '@dnd-kit/state': 0.4.0
+      tslib: 2.8.1
+
+  '@dnd-kit/geometry@0.4.0':
+    dependencies:
+      '@dnd-kit/state': 0.4.0
+      tslib: 2.8.1
+
+  '@dnd-kit/react@0.4.0(react-dom@19.2.6(react@19.2.6))(react@19.2.6)':
+    dependencies:
+      '@dnd-kit/abstract': 0.4.0
+      '@dnd-kit/dom': 0.4.0
+      '@dnd-kit/state': 0.4.0
+      react: 19.2.6
+      react-dom: 19.2.6(react@19.2.6)
+      tslib: 2.8.1
+
+  '@dnd-kit/state@0.4.0':
+    dependencies:
+      '@preact/signals-core': 1.14.1
+      tslib: 2.8.1
+
   '@electric-sql/pglite-socket@0.1.1(@electric-sql/pglite@0.4.1)':
     dependencies:
       '@electric-sql/pglite': 0.4.1
@@ -5734,6 +5826,8 @@ snapshots:
       supports-color: 10.2.2
 
   '@poppinss/exception@1.2.3': {}
+
+  '@preact/signals-core@1.14.1': {}
 
   '@prisma/adapter-better-sqlite3@7.8.0':
     dependencies:
@@ -6884,7 +6978,7 @@ snapshots:
       - supports-color
       - typescript
 
-  '@tanstack/form-core@1.29.1':
+  '@tanstack/form-core@1.29.3':
     dependencies:
       '@tanstack/devtools-event-client': 0.4.3
       '@tanstack/pacer-lite': 0.1.1
@@ -6911,9 +7005,20 @@ snapshots:
       - solid-js
       - utf-8-validate
 
-  '@tanstack/react-form@1.29.1(@tanstack/react-start@1.167.65(crossws@0.4.5(srvx@0.11.15))(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(vite@8.0.11(@types/node@25.6.1)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.21.0)))(react-dom@19.2.6(react@19.2.6))(react@19.2.6)':
+  '@tanstack/react-form-start@1.29.3(@tanstack/react-start@1.167.65(crossws@0.4.5(srvx@0.11.15))(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(vite@8.0.11(@types/node@25.6.1)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.21.0)))(react-dom@19.2.6(react@19.2.6))(react@19.2.6)':
     dependencies:
-      '@tanstack/form-core': 1.29.1
+      '@tanstack/react-form': 1.29.3(@tanstack/react-start@1.167.65(crossws@0.4.5(srvx@0.11.15))(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(vite@8.0.11(@types/node@25.6.1)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.21.0)))(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
+      decode-formdata: 0.9.0
+      devalue: 5.8.0
+      react: 19.2.6
+    optionalDependencies:
+      '@tanstack/react-start': 1.167.65(crossws@0.4.5(srvx@0.11.15))(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(vite@8.0.11(@types/node@25.6.1)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.21.0))
+    transitivePeerDependencies:
+      - react-dom
+
+  '@tanstack/react-form@1.29.3(@tanstack/react-start@1.167.65(crossws@0.4.5(srvx@0.11.15))(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(vite@8.0.11(@types/node@25.6.1)(esbuild@0.27.7)(jiti@2.7.0)(tsx@4.21.0)))(react-dom@19.2.6(react@19.2.6))(react@19.2.6)':
+    dependencies:
+      '@tanstack/form-core': 1.29.3
       '@tanstack/react-store': 0.9.3(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
       react: 19.2.6
     optionalDependencies:
@@ -7621,6 +7726,8 @@ snapshots:
 
   decimal.js@10.6.0: {}
 
+  decode-formdata@0.9.0: {}
+
   decompress-response@6.0.0:
     dependencies:
       mimic-response: 3.1.0
@@ -7642,6 +7749,8 @@ snapshots:
   detect-libc@2.1.2: {}
 
   detect-node-es@1.1.0: {}
+
+  devalue@5.8.0: {}
 
   diff@8.0.4: {}
 
@@ -8226,6 +8335,8 @@ snapshots:
       lru.min: 1.1.4
 
   nanoid@3.3.12: {}
+
+  nanoid@5.1.11: {}
 
   nanostores@1.3.0: {}
 

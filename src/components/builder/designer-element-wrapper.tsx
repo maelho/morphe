@@ -1,0 +1,110 @@
+import { useDraggable, useDroppable } from "@dnd-kit/react"
+import { TrashIcon } from "@phosphor-icons/react"
+import { useState } from "react"
+
+import { Button } from "#/components/ui/button"
+import { cn } from "@/lib/utils"
+
+import { designerStoreActions } from "./designer-store"
+import { FormElements } from "./elements"
+import type { FormElementInstance } from "./types/elements"
+
+export function DesignerElementWrapper({ element }: { element: FormElementInstance }) {
+  const [mouseIsOver, setMouseIsOver] = useState<boolean>(false)
+
+  const DesignerElement = FormElements[element.type].designerComponent
+
+  const { ref: topRef, isDropTarget: topIsOver } = useDroppable({
+    id: `designer-element-${element.id}-top-half`,
+    data: {
+      type: element.type,
+      elementId: element.id,
+      isTopHalfDesignerElement: true,
+    },
+  })
+
+  const { ref: bottomRef, isDropTarget: bottomIsOver } = useDroppable({
+    id: `designer-element-${element.id}-bottom-half`,
+    data: {
+      type: element.type,
+      elementId: element.id,
+      isTopHalfDesignerElement: false,
+    },
+  })
+
+  const { ref: dragRef, isDragging } = useDraggable({
+    id: `designer-element-${element.id}-drag-handler`,
+    data: {
+      type: element.type,
+      elementId: element.id,
+      isDesignerElement: true,
+    },
+  })
+
+  if (isDragging) return null // temporarily hide element while dragging
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault()
+      designerStoreActions.setSelectedElement(element)
+    }
+  }
+
+  return (
+    <div
+      ref={dragRef}
+      // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role
+      role="button"
+      onKeyDown={handleKeyDown}
+      tabIndex={0}
+      className="relative flex h-30 flex-col rounded-md text-foreground ring-1 ring-accent ring-inset hover:cursor-pointer"
+      onMouseEnter={() => setMouseIsOver(true)}
+      onMouseLeave={() => setMouseIsOver(false)}
+      onClick={(e) => {
+        e.stopPropagation()
+        designerStoreActions.setSelectedElement(element)
+      }}
+    >
+      {/* Droppable overlays */}
+      <div ref={topRef} className="absolute h-1/2 w-full rounded-t-md" />
+      <div ref={bottomRef} className="absolute bottom-0 h-1/2 w-full rounded-b-md" />
+
+      {/* Hover actions */}
+      {mouseIsOver && (
+        <>
+          <div className="absolute right-0 h-full">
+            <Button
+              className="flex h-full justify-center rounded-md rounded-l-none border bg-red-500"
+              variant="outline"
+              onClick={(e) => {
+                e.stopPropagation()
+                designerStoreActions.removeElement(element.id)
+              }}
+            >
+              <TrashIcon className="h-6 w-6" />
+            </Button>
+          </div>
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-pulse">
+            <p className="text-sm text-muted-foreground">Click for properties or drag to move</p>
+          </div>
+        </>
+      )}
+
+      {/* Top / Bottom drop indicators */}
+      {topIsOver && <div className="absolute top-0 h-1.75 w-full rounded-b-none bg-primary" />}
+      {bottomIsOver && (
+        <div className="absolute bottom-0 h-1.75 w-full rounded-t-none bg-primary" />
+      )}
+
+      {/* Draggable content */}
+      <div
+        className={cn(
+          "pointer-events-none flex h-30 w-full items-center rounded-md bg-accent/40 px-4 py-2 opacity-100",
+          mouseIsOver ? "opacity-30" : "",
+        )}
+      >
+        <DesignerElement elementInstance={element} />
+      </div>
+    </div>
+  )
+}

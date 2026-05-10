@@ -45,12 +45,14 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       <head>
         <HeadContent />
       </head>
-      <body>
-        <ThemeProvider>
-          <ToastProvider position="bottom-right">
-            <AnchoredToastProvider>{children}</AnchoredToastProvider>
-          </ToastProvider>
-        </ThemeProvider>
+      <body className="relative">
+        <div className="relative isolate flex min-h-svh flex-col">
+          <ThemeProvider>
+            <ToastProvider position="bottom-right">
+              <AnchoredToastProvider>{children}</AnchoredToastProvider>
+            </ToastProvider>
+          </ThemeProvider>
+        </div>
         <TanStackDevtools
           config={{
             position: "bottom-right",

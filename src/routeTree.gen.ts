@@ -13,6 +13,7 @@ import { Route as AuthRouteImport } from './routes/_auth'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthDashboardRouteImport } from './routes/_auth.dashboard'
 import { Route as ApiAuthSplatRouteImport } from './routes/api.auth.$'
+import { Route as AuthBuilderIdRouteImport } from './routes/_auth.builder.$id'
 
 const AuthRoute = AuthRouteImport.update({
   id: '/_auth',
@@ -33,15 +34,22 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   path: '/api/auth/$',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthBuilderIdRoute = AuthBuilderIdRouteImport.update({
+  id: '/builder/$id',
+  path: '/builder/$id',
+  getParentRoute: () => AuthRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof AuthDashboardRoute
+  '/builder/$id': typeof AuthBuilderIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/dashboard': typeof AuthDashboardRoute
+  '/builder/$id': typeof AuthBuilderIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRoutesById {
@@ -49,14 +57,21 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_auth': typeof AuthRouteWithChildren
   '/_auth/dashboard': typeof AuthDashboardRoute
+  '/_auth/builder/$id': typeof AuthBuilderIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/dashboard' | '/api/auth/$'
+  fullPaths: '/' | '/dashboard' | '/builder/$id' | '/api/auth/$'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/dashboard' | '/api/auth/$'
-  id: '__root__' | '/' | '/_auth' | '/_auth/dashboard' | '/api/auth/$'
+  to: '/' | '/dashboard' | '/builder/$id' | '/api/auth/$'
+  id:
+    | '__root__'
+    | '/'
+    | '/_auth'
+    | '/_auth/dashboard'
+    | '/_auth/builder/$id'
+    | '/api/auth/$'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -95,15 +110,24 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAuthSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_auth/builder/$id': {
+      id: '/_auth/builder/$id'
+      path: '/builder/$id'
+      fullPath: '/builder/$id'
+      preLoaderRoute: typeof AuthBuilderIdRouteImport
+      parentRoute: typeof AuthRoute
+    }
   }
 }
 
 interface AuthRouteChildren {
   AuthDashboardRoute: typeof AuthDashboardRoute
+  AuthBuilderIdRoute: typeof AuthBuilderIdRoute
 }
 
 const AuthRouteChildren: AuthRouteChildren = {
   AuthDashboardRoute: AuthDashboardRoute,
+  AuthBuilderIdRoute: AuthBuilderIdRoute,
 }
 
 const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
