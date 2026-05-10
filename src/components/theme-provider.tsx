@@ -1,5 +1,5 @@
 import { ScriptOnce } from "@tanstack/react-router"
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react"
+import { createContext, use, useCallback, useEffect, useState } from "react"
 
 type Theme = "dark" | "light" | "system"
 
@@ -9,36 +9,44 @@ type ThemeProviderProps = {
   storageKey?: string
 }
 
-type ThemeProviderState = {
+type ThemeContextType = {
   theme: Theme
   setTheme: (theme: Theme) => void
 }
 
-function getThemeScript(storageKey: string, defaultTheme: Theme) {
+function resolveTheme(theme: Theme): "dark" | "light" {
+  if (theme !== "system") return theme
+  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"
+}
+
+function applyTheme(theme: Theme) {
+  const resolved = resolveTheme(theme)
+  const root = document.documentElement
+  root.classList.remove("light", "dark")
+  root.classList.add(resolved)
+  root.style.colorScheme = resolved
+}
+
+function readStorage(key: string, fallback: Theme): Theme {
+  try {
+    const stored = localStorage.getItem(key)
+    if (stored === "light" || stored === "dark" || stored === "system") return stored
+  } catch {}
+  return fallback
+}
+
+function getThemeScript(storageKey: string, defaultTheme: Theme): string {
   const key = JSON.stringify(storageKey)
   const fallback = JSON.stringify(defaultTheme)
-
   return `(function(){try{var t=localStorage.getItem(${key});if(t!=='light'&&t!=='dark'&&t!=='system'){t=${fallback}}var d=matchMedia('(prefers-color-scheme: dark)').matches;var r=t==='system'?(d?'dark':'light'):t;var e=document.documentElement;e.classList.add(r);e.style.colorScheme=r}catch(e){}})();`
 }
 
-const ThemeProviderContext = createContext<ThemeProviderState>({
-  theme: "system",
-  setTheme: () => {},
-})
+const ThemeContext = createContext<ThemeContextType | null>(null)
 
-function applyTheme(theme: Theme) {
-  const root = document.documentElement
-  root.classList.remove("light", "dark")
-
-  const resolved =
-    theme === "system"
-      ? window.matchMedia("(prefers-color-scheme: dark)").matches
-        ? "dark"
-        : "light"
-      : theme
-
-  root.classList.add(resolved)
-  root.style.colorScheme = resolved
+export function useTheme(): ThemeContextType {
+  const ctx = use(ThemeContext)
+  if (!ctx) throw new Error("useTheme must be used within <ThemeProvider>")
+  return ctx
 }
 
 export function ThemeProvider({
@@ -46,50 +54,32 @@ export function ThemeProvider({
   defaultTheme = "system",
   storageKey = "theme",
 }: ThemeProviderProps) {
-  const [theme, setThemeState] = useState<Theme>(defaultTheme)
-  const [mounted, setMounted] = useState(false)
+  const [theme, setThemeState] = useState<Theme>(() => readStorage(storageKey, defaultTheme))
 
+  // Apply theme + watch system changes when theme === "system"
   useEffect(() => {
-    const stored = localStorage.getItem(storageKey)
-    setThemeState(
-      stored === "light" || stored === "dark" || stored === "system" ? stored : defaultTheme,
-    )
-    setMounted(true)
-  }, [defaultTheme, storageKey])
-
-  useEffect(() => {
-    if (!mounted) return
     applyTheme(theme)
-  }, [theme, mounted])
-
-  useEffect(() => {
-    if (!mounted || theme !== "system") return
-
+    if (theme !== "system") return
     const media = window.matchMedia("(prefers-color-scheme: dark)")
     const onChange = () => applyTheme("system")
     media.addEventListener("change", onChange)
     return () => media.removeEventListener("change", onChange)
-  }, [theme, mounted])
+  }, [theme])
 
   const setTheme = useCallback(
     (next: Theme) => {
-      localStorage.setItem(storageKey, next)
+      try {
+        localStorage.setItem(storageKey, next)
+      } catch {}
       setThemeState(next)
     },
     [storageKey],
   )
 
-  const value = useMemo(() => ({ theme, setTheme }), [theme, setTheme])
   return (
-    <ThemeProviderContext value={value}>
+    <ThemeContext value={{ theme, setTheme }}>
       <ScriptOnce>{getThemeScript(storageKey, defaultTheme)}</ScriptOnce>
       {children}
-    </ThemeProviderContext>
+    </ThemeContext>
   )
-}
-
-export function useTheme() {
-  const context = useContext(ThemeProviderContext)
-  if (context === undefined) throw new Error("useTheme must be used within a ThemeProvider")
-  return context
 }

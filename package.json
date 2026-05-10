@@ -32,7 +32,7 @@
     "@prisma/client": "^7.8.0",
     "@tailwindcss/vite": "^4.2.4",
     "@tanstack/react-devtools": "latest",
-    "@tanstack/react-form": "latest",
+    "@tanstack/react-form-start": "^1.29.3",
     "@tanstack/react-query": "^5.100.9",
     "@tanstack/react-query-devtools": "^5.100.9",
     "@tanstack/react-router": "latest",
