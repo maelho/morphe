@@ -1,17 +1,16 @@
 import type { ReactNode, ElementType } from "react"
 
-export type ElementsType =
-  | "TextField"
-  | "TitleField"
-  | "CheckboxField"
-  | "DateField"
-  | "NumberField"
-  | "ParagraphField"
-  | "SelectField"
-  | "SeparatorField"
-  | "SpacerField"
-  | "SubTitleField"
-  | "TextAreaField"
+export type ElementsType = "TitleField"
+// | "TextField"
+// | "CheckboxField"
+// | "DateField"
+// | "NumberField"
+// | "ParagraphField"
+// | "SelectField"
+// | "SeparatorField"
+// | "SpacerField"
+// | "SubTitleField"
+// | "TextAreaField"
 
 export type FormElementInstance = {
   id: string
@@ -43,8 +42,4 @@ export type FormElement = {
   propertiesComponent: (props: { elementInstance: FormElementInstance }) => ReactNode
 
   validate: (formElement: FormElementInstance, currentValue: string) => boolean
-}
-
-export type FormElementsType = {
-  [key in ElementsType]: FormElement
 }

@@ -42,6 +42,13 @@ export const designerStoreActions = {
     }))
   },
 
+  setElements(elements: FormElementInstance[]) {
+    designerStore.setState((state) => ({
+      ...state,
+      elements,
+    }))
+  },
+
   setSelectedElement(element: FormElementInstance | null) {
     designerStore.setState((state) => ({
       ...state,
