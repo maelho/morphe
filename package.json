@@ -23,6 +23,7 @@
   },
   "dependencies": {
     "@base-ui/react": "^1.4.1",
+    "@better-auth/prisma-adapter": "^1.6.10",
     "@cloudflare/vite-plugin": "^1.36.3",
     "@dnd-kit/dom": "^0.4.0",
     "@dnd-kit/react": "^0.4.0",
