@@ -9,8 +9,9 @@ datasource db {
 }
 
 model Form {
-  id              Int               @id @default(autoincrement())
+  id              String            @id @default(cuid())
   userId          String
+  user            User              @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt       DateTime          @default(now())
   published       Boolean           @default(false)
   name            String
@@ -22,14 +23,17 @@ model Form {
   FormSubmissions FormSubmissions[]
 
   @@unique([name, userId])
+  @@index([userId])
 }
 
 model FormSubmissions {
-  id        Int      @id @default(autoincrement())
+  id        String   @id @default(cuid())
   createdAt DateTime @default(now())
-  formId    Int
+  formId    String
   content   String
-  form      Form     @relation(fields: [formId], references: [id])
+  form      Form     @relation(fields: [formId], references: [id], onDelete: Cascade)
+
+  @@index([formId])
 }
 
 model User {
@@ -42,6 +46,7 @@ model User {
   updatedAt     DateTime  @updatedAt
   sessions      Session[]
   accounts      Account[]
+  forms         Form[]
 
   @@unique([email])
   @@map("user")
