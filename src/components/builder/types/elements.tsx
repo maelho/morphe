@@ -1,3 +1,5 @@
+import type { ReactNode, ElementType } from "react"
+
 export type ElementsType =
   | "TextField"
   | "TitleField"
@@ -14,5 +16,35 @@ export type ElementsType =
 export type FormElementInstance = {
   id: string
   type: ElementsType
-  extraAttributes?: Record<string, any>
+  extraAttributes?: Record<string, unknown>
+}
+
+export type SubmitFunction = (key: string, value: string) => void
+
+export type FormElement = {
+  type: ElementsType
+
+  construct: (id: string) => FormElementInstance
+
+  designerButtonElement: {
+    icon: ElementType
+    label: string
+  }
+
+  designerComponent: (props: { elementInstance: FormElementInstance }) => ReactNode
+
+  formComponent: (props: {
+    elementInstance: FormElementInstance
+    submitValue?: SubmitFunction
+    isInvalid?: boolean
+    defaultValue?: string
+  }) => ReactNode
+
+  propertiesComponent: (props: { elementInstance: FormElementInstance }) => ReactNode
+
+  validate: (formElement: FormElementInstance, currentValue: string) => boolean
+}
+
+export type FormElementsType = {
+  [key in ElementsType]: FormElement
 }
