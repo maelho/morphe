@@ -8,19 +8,17 @@ import { Form } from "#/components/ui/form"
 import { Input } from "#/components/ui/input"
 import { Label } from "#/components/ui/label"
 
-import { designerStoreActions } from "../designer-store"
-import type { FormElement, FormElementInstance } from "../types/elements"
-
-const extraAttributes = {
-  title: "Title field",
-}
+import { designerStoreActions } from "../designer/store"
+import type { ElementInstanceOf, FormElement, FormElementInstance } from "../form-types"
 
 const propertiesSchema = z.object({
   title: z.string().min(2).max(50),
 })
 
-type CustomInstance = Omit<FormElementInstance, "extraAttributes"> & {
-  extraAttributes: typeof extraAttributes
+type TitleFieldInstance = ElementInstanceOf<"TitleField">
+
+const defaultAttributes: TitleFieldInstance["extraAttributes"] = {
+  title: "Title field",
 }
 
 export const TitleFieldFormElement: FormElement = {
@@ -28,7 +26,7 @@ export const TitleFieldFormElement: FormElement = {
   construct: (id: string) => ({
     id: id,
     type: "TitleField",
-    extraAttributes,
+    extraAttributes: defaultAttributes,
   }),
   designerButtonElement: {
     icon: TextHOneIcon,
@@ -41,35 +39,30 @@ export const TitleFieldFormElement: FormElement = {
 }
 
 function DesignerComponent({ elementInstance }: { elementInstance: FormElementInstance }) {
-  const element = elementInstance as CustomInstance
-  const { title } = element.extraAttributes
+  const { extraAttributes } = elementInstance as TitleFieldInstance
   return (
     <div>
       <Label>Title field</Label>
-      <p>{title}</p>
+      <p>{extraAttributes.title}</p>
     </div>
   )
 }
 
 function FormComponent({ elementInstance }: { elementInstance: FormElementInstance }) {
-  const element = elementInstance as CustomInstance
-
-  const { title } = element.extraAttributes
-  return <p>{title}</p>
+  const { extraAttributes } = elementInstance as TitleFieldInstance
+  return <p>{extraAttributes.title}</p>
 }
 
 function PropertiesComponent({ elementInstance }: { elementInstance: FormElementInstance }) {
-  const element = elementInstance as CustomInstance
+  const element = elementInstance as TitleFieldInstance
 
   const form = useForm({
     defaultValues: {
       title: element.extraAttributes.title,
     },
-
     validators: {
       onChange: propertiesSchema,
     },
-
     onSubmit: async ({ value }) => {
       designerStoreActions.updateElement(element.id, {
         ...element,
@@ -81,9 +74,7 @@ function PropertiesComponent({ elementInstance }: { elementInstance: FormElement
   })
 
   useEffect(() => {
-    form.reset({
-      title: element.extraAttributes.title,
-    })
+    form.reset({ title: element.extraAttributes.title })
   }, [element, form])
 
   return (
@@ -99,7 +90,6 @@ function PropertiesComponent({ elementInstance }: { elementInstance: FormElement
         {(field) => (
           <Field name={field.name}>
             <FieldLabel>Title</FieldLabel>
-
             <Input
               name={field.name}
               value={field.state.value}
@@ -115,7 +105,6 @@ function PropertiesComponent({ elementInstance }: { elementInstance: FormElement
                 }
               }}
             />
-
             {field.state.meta.errors.length > 0 && (
               <FieldError>{field.state.meta.errors[0]?.message}</FieldError>
             )}

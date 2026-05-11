@@ -1,7 +1,7 @@
 import { useSelector } from "@tanstack/react-store"
 import { Store } from "@tanstack/store"
 
-import type { FormElementInstance } from "./types/elements"
+import type { FormElementInstance } from "../form-types"
 
 export type DesignerStore = {
   elements: FormElementInstance[]

@@ -1,4 +1,4 @@
-import type { ElementsType, FormElement } from "../types/elements"
+import type { ElementsType, FormElement } from "../form-types"
 import { TitleFieldFormElement } from "./title-field"
 
 export type FormElementsType = {
