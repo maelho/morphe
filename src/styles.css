@@ -380,6 +380,12 @@
     font-family: var(--font-mono);
   }
   html {
-    @apply font-mono font-sans;
+    @apply font-mono;
+  }
+  code,
+  kbd,
+  samp,
+  pre {
+    font-family: var(--font-mono);
   }
 }

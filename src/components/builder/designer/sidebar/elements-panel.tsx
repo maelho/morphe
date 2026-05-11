@@ -4,7 +4,22 @@ import { FormElements } from "../../fields/registry"
 import type { ElementsType } from "../../form-types"
 import { ElementButton } from "./element-button"
 
-const layoutElements: ElementsType[] = ["TitleField"]
+const layoutElements: ElementsType[] = [
+  "TitleField",
+  "SubtitleField",
+  "ParagraphField",
+  "SeparatorField",
+  "SpacerField",
+]
+
+const inputElements: ElementsType[] = [
+  "TextField",
+  "TextareaField",
+  "NumberField",
+  "DateField",
+  "CheckboxField",
+  "SelectField",
+]
 
 export function ElementsPanel() {
   return (
@@ -16,6 +31,12 @@ export function ElementsPanel() {
           Layout elements
         </p>
         {layoutElements.map((type) => (
+          <ElementButton key={type} formElement={FormElements[type]} />
+        ))}
+        <p className="col-span-1 my-2 place-self-start text-sm text-muted-foreground md:col-span-2">
+          Input elements
+        </p>
+        {inputElements.map((type) => (
           <ElementButton key={type} formElement={FormElements[type]} />
         ))}
       </div>

@@ -25,11 +25,7 @@ export function useElementDragDrop(elementId: string, type?: ElementsType) {
 
   const { ref: dragRef, isDragging } = useDraggable({
     id: `designer-element-${elementId}-drag-handler`,
-    data: {
-      type,
-      elementId,
-      isDesignerElement: true,
-    },
+    data: { type, elementId, isDesignerElement: true },
   })
 
   return { topRef, bottomRef, dragRef, topIsOver, bottomIsOver, isDragging }

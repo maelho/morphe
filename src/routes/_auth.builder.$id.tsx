@@ -23,6 +23,9 @@ const mockForm: Form = {
       type: "TitleField",
       extraAttributes: {
         title: "Welcome to the Mock Form",
+        fontSize: "lg",
+        fontWeight: "bold",
+        alignment: "left",
       },
     },
   ]),

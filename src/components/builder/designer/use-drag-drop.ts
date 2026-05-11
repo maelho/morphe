@@ -36,7 +36,11 @@ export function useDesignerDragDrop(order: string[]) {
       }
 
       if (isElement && overEl) {
-        designerStoreActions.moveElement(src.elementId, tgt.elementId, tgt.isBottomHalfDesignerElement)
+        designerStoreActions.moveElement(
+          src.elementId,
+          tgt.elementId,
+          tgt.isBottomHalfDesignerElement,
+        )
       }
     },
   })

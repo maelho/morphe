@@ -8,6 +8,7 @@ import type { Form } from "#/generated/prisma/client"
 import { Designer } from "./designer/canvas"
 import { DragOverlayWrapper } from "./designer/overlay"
 import { designerStoreActions } from "./designer/store"
+import { parseFormContent } from "./form-utils"
 
 const dotBackground = {
   backgroundImage: "radial-gradient(rgba(255, 255, 255, 0.1) 1px, rgb(164 164 164) 1px)",
@@ -21,9 +22,15 @@ export default function FormBuilder({ form }: { form: Form }) {
   useEffect(() => {
     if (isReady) return
     designerStoreActions.setSelectedElement(null)
-    designerStoreActions.setElements(JSON.parse(form.content))
-    const t = setTimeout(() => setIsReady(true), 500)
-    return () => clearTimeout(t)
+
+    try {
+      designerStoreActions.setElements(parseFormContent(form.content))
+    } catch (err) {
+      console.error("Failed to load form content:", err)
+      designerStoreActions.setElements([])
+    }
+
+    Promise.resolve().then(() => setIsReady(true))
   }, [form, isReady])
 
   if (!isReady) return <Spinner />

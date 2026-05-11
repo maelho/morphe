@@ -19,21 +19,21 @@ export const designerStoreActions = {
   addElement(index: number, element: FormElementInstance) {
     designerStore.setState((state) => ({
       ...state,
-      elements: {
-        ...state.elements,
-        [element.id]: element,
-      },
+      elements: { ...state.elements, [element.id]: element },
       order: [...state.order.slice(0, index), element.id, ...state.order.slice(index)],
     }))
   },
 
   removeElement(id: string) {
-    designerStore.setState((state) => ({
-      ...state,
-      elements: Object.fromEntries(Object.entries(state.elements).filter(([key]) => key !== id)),
-      order: state.order.filter((elementId) => elementId !== id),
-      selectedElementId: state.selectedElementId === id ? null : state.selectedElementId,
-    }))
+    designerStore.setState((state) => {
+      const { [id]: _, ...rest } = state.elements
+      return {
+        ...state,
+        elements: rest,
+        order: state.order.filter((eid) => eid !== id),
+        selectedElementId: state.selectedElementId === id ? null : state.selectedElementId,
+      }
+    })
   },
 
   moveElement(activeId: string, overId: string, insertAfter: boolean) {
@@ -42,41 +42,21 @@ export const designerStoreActions = {
       const overIndex = state.order.indexOf(overId)
       if (activeIndex === -1 || overIndex === -1 || activeId === overId) return state
 
-      const nextOrder = [...state.order]
-      nextOrder.splice(activeIndex, 1)
-
+      const next = [...state.order]
+      next.splice(activeIndex, 1)
       const baseIndex = activeIndex < overIndex ? overIndex - 1 : overIndex
-      const targetIndex = insertAfter ? baseIndex + 1 : baseIndex
-      nextOrder.splice(targetIndex, 0, activeId)
+      next.splice(insertAfter ? baseIndex + 1 : baseIndex, 0, activeId)
 
-      return {
-        ...state,
-        order: nextOrder,
-      }
+      return { ...state, order: next }
     })
   },
 
-  updateElement(id: string, patch: Partial<FormElementInstance>) {
+  updateElement(id: string, element: FormElementInstance) {
     designerStore.setState((state) => {
-      const current = state.elements[id]
-      if (!current) return state
-
-      const nextExtraAttributes = patch.extraAttributes
-        ? { ...current.extraAttributes, ...patch.extraAttributes }
-        : current.extraAttributes
-
+      if (!state.elements[id]) return state
       return {
         ...state,
-        elements: {
-          ...state.elements,
-          [id]: {
-            ...current,
-            ...patch,
-            id: current.id,
-            type: current.type,
-            extraAttributes: nextExtraAttributes,
-          } as FormElementInstance,
-        },
+        elements: { ...state.elements, [id]: element },
       }
     })
   },
@@ -94,25 +74,16 @@ export const designerStoreActions = {
     designerStore.setState((state) => {
       const normalized: Record<string, FormElementInstance> = {}
       const order: string[] = []
-
-      for (const element of elements) {
-        normalized[element.id] = element
-        order.push(element.id)
+      for (const el of elements) {
+        normalized[el.id] = el
+        order.push(el.id)
       }
-
-      return {
-        ...state,
-        elements: normalized,
-        order,
-      }
+      return { ...state, elements: normalized, order }
     })
   },
 
   setSelectedElement(id: string | null) {
-    designerStore.setState((state) => ({
-      ...state,
-      selectedElementId: id,
-    }))
+    designerStore.setState((state) => ({ ...state, selectedElementId: id }))
   },
 }
 
@@ -122,12 +93,12 @@ export function useDesignerElements() {
 
 export function useSelectedElement() {
   return useSelector(designerStore, (s) =>
-    s.selectedElementId ? s.elements[s.selectedElementId] ?? null : null,
+    s.selectedElementId ? (s.elements[s.selectedElementId] ?? null) : null,
   )
 }
 
 export function useDesignerElement(id: string | null) {
-  return useSelector(designerStore, (s) => (id ? s.elements[id] ?? null : null))
+  return useSelector(designerStore, (s) => (id ? (s.elements[id] ?? null) : null))
 }
 
 export function useIsSelected(id: string) {

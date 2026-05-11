@@ -17,7 +17,11 @@ export function PropertiesPanel() {
     <div className="flex flex-col p-2">
       <div className="flex items-center justify-between">
         <p className="text-sm text-foreground/70">Element properties</p>
-        <Button size="icon" variant="ghost" onClick={() => designerStoreActions.setSelectedElement(null)}>
+        <Button
+          size="icon"
+          variant="ghost"
+          onClick={() => designerStoreActions.setSelectedElement(null)}
+        >
           <XIcon />
         </Button>
       </div>
