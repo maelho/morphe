@@ -19,8 +19,6 @@ dist-ssr/
 .env
 *.local
 .env.*.local
-prisma/generated/
-prisma/migrations/
 dev.db
 db/
 todos.json
