@@ -4,63 +4,132 @@ import { Store } from "@tanstack/store"
 import type { FormElementInstance } from "../form-types"
 
 export type DesignerStore = {
-  elements: FormElementInstance[]
-  selectedElement: FormElementInstance | null
+  elements: Record<string, FormElementInstance>
+  order: string[]
+  selectedElementId: string | null
 }
 
 const designerStore = new Store<DesignerStore>({
-  elements: [],
-  selectedElement: null,
+  elements: {},
+  order: [],
+  selectedElementId: null,
 })
 
 export const designerStoreActions = {
   addElement(index: number, element: FormElementInstance) {
     designerStore.setState((state) => ({
       ...state,
-      elements: [...state.elements.slice(0, index), element, ...state.elements.slice(index)],
+      elements: {
+        ...state.elements,
+        [element.id]: element,
+      },
+      order: [...state.order.slice(0, index), element.id, ...state.order.slice(index)],
     }))
   },
 
   removeElement(id: string) {
     designerStore.setState((state) => ({
       ...state,
-      elements: state.elements.filter((e) => e.id != id),
+      elements: Object.fromEntries(Object.entries(state.elements).filter(([key]) => key !== id)),
+      order: state.order.filter((elementId) => elementId !== id),
+      selectedElementId: state.selectedElementId === id ? null : state.selectedElementId,
     }))
   },
 
-  updateElement(id: string, element: FormElementInstance) {
-    designerStore.setState((state) => ({
-      ...state,
-      elements: state.elements.map((e) => (e.id === id ? element : e)),
-    }))
+  moveElement(activeId: string, overId: string, insertAfter: boolean) {
+    designerStore.setState((state) => {
+      const activeIndex = state.order.indexOf(activeId)
+      const overIndex = state.order.indexOf(overId)
+      if (activeIndex === -1 || overIndex === -1 || activeId === overId) return state
+
+      const nextOrder = [...state.order]
+      nextOrder.splice(activeIndex, 1)
+
+      const baseIndex = activeIndex < overIndex ? overIndex - 1 : overIndex
+      const targetIndex = insertAfter ? baseIndex + 1 : baseIndex
+      nextOrder.splice(targetIndex, 0, activeId)
+
+      return {
+        ...state,
+        order: nextOrder,
+      }
+    })
+  },
+
+  updateElement(id: string, patch: Partial<FormElementInstance>) {
+    designerStore.setState((state) => {
+      const current = state.elements[id]
+      if (!current) return state
+
+      const nextExtraAttributes = patch.extraAttributes
+        ? { ...current.extraAttributes, ...patch.extraAttributes }
+        : current.extraAttributes
+
+      return {
+        ...state,
+        elements: {
+          ...state.elements,
+          [id]: {
+            ...current,
+            ...patch,
+            id: current.id,
+            type: current.type,
+            extraAttributes: nextExtraAttributes,
+          } as FormElementInstance,
+        },
+      }
+    })
   },
 
   clearElements() {
     designerStore.setState((state) => ({
       ...state,
-      elements: [],
+      elements: {},
+      order: [],
+      selectedElementId: null,
     }))
   },
 
   setElements(elements: FormElementInstance[]) {
-    designerStore.setState((state) => ({
-      ...state,
-      elements,
-    }))
+    designerStore.setState((state) => {
+      const normalized: Record<string, FormElementInstance> = {}
+      const order: string[] = []
+
+      for (const element of elements) {
+        normalized[element.id] = element
+        order.push(element.id)
+      }
+
+      return {
+        ...state,
+        elements: normalized,
+        order,
+      }
+    })
   },
 
-  setSelectedElement(element: FormElementInstance | null) {
+  setSelectedElement(id: string | null) {
     designerStore.setState((state) => ({
       ...state,
-      selectedElement: element,
+      selectedElementId: id,
     }))
   },
 }
 
 export function useDesignerElements() {
-  return useSelector(designerStore, (s) => s.elements)
+  return useSelector(designerStore, (s) => s.order)
 }
 
 export function useSelectedElement() {
-  return useSelector(designerStore, (s) => s.selectedElement)
+  return useSelector(designerStore, (s) =>
+    s.selectedElementId ? s.elements[s.selectedElementId] ?? null : null,
+  )
+}
+
+export function useDesignerElement(id: string | null) {
+  return useSelector(designerStore, (s) => (id ? s.elements[id] ?? null : null))
+}
+
+export function useIsSelected(id: string) {
+  return useSelector(designerStore, (s) => s.selectedElementId === id)
 }

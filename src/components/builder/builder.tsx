@@ -20,8 +20,8 @@ export default function FormBuilder({ form }: { form: Form }) {
 
   useEffect(() => {
     if (isReady) return
-    designerStoreActions.setElements(JSON.parse(form.content))
     designerStoreActions.setSelectedElement(null)
+    designerStoreActions.setElements(JSON.parse(form.content))
     const t = setTimeout(() => setIsReady(true), 500)
     return () => clearTimeout(t)
   }, [form, isReady])

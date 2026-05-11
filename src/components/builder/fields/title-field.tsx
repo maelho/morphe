@@ -65,7 +65,6 @@ function PropertiesComponent({ elementInstance }: { elementInstance: FormElement
     },
     onSubmit: async ({ value }) => {
       designerStoreActions.updateElement(element.id, {
-        ...element,
         extraAttributes: {
           title: value.title,
         },

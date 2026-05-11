@@ -1,31 +1,33 @@
 import { useDraggable, useDroppable } from "@dnd-kit/react"
 
-import type { FormElementInstance } from "../form-types"
+import type { ElementsType } from "../form-types"
 
-export function useElementDragDrop(element: FormElementInstance) {
+export function useElementDragDrop(elementId: string, type?: ElementsType) {
   const { ref: topRef, isDropTarget: topIsOver } = useDroppable({
-    id: `designer-element-${element.id}-top-half`,
+    id: `designer-element-${elementId}-top-half`,
     data: {
-      type: element.type,
-      elementId: element.id,
+      type,
+      elementId,
       isTopHalfDesignerElement: true,
+      isBottomHalfDesignerElement: false,
     },
   })
 
   const { ref: bottomRef, isDropTarget: bottomIsOver } = useDroppable({
-    id: `designer-element-${element.id}-bottom-half`,
+    id: `designer-element-${elementId}-bottom-half`,
     data: {
-      type: element.type,
-      elementId: element.id,
+      type,
+      elementId,
       isTopHalfDesignerElement: false,
+      isBottomHalfDesignerElement: true,
     },
   })
 
   const { ref: dragRef, isDragging } = useDraggable({
-    id: `designer-element-${element.id}-drag-handler`,
+    id: `designer-element-${elementId}-drag-handler`,
     data: {
-      type: element.type,
-      elementId: element.id,
+      type,
+      elementId,
       isDesignerElement: true,
     },
   })

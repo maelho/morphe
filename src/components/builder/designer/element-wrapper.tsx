@@ -5,24 +5,30 @@ import { Button } from "#/components/ui/button"
 import { cn } from "#/lib/utils"
 
 import { FormElements } from "../fields/registry"
-import type { FormElementInstance } from "../form-types"
-import { designerStoreActions } from "./store"
+import { designerStoreActions, useDesignerElement, useIsSelected } from "./store"
 import { useElementDragDrop } from "./use-element-drag-drop"
 
-export function DesignerElementWrapper({ element }: { element: FormElementInstance }) {
+export function DesignerElementWrapper({ elementId }: { elementId: string }) {
+  const element = useDesignerElement(elementId)
+  const isSelected = useIsSelected(elementId)
   const [mouseIsOver, setMouseIsOver] = useState(false)
-  const { topRef, bottomRef, dragRef, topIsOver, bottomIsOver, isDragging } =
-    useElementDragDrop(element)
+  const { topRef, bottomRef, dragRef, topIsOver, bottomIsOver, isDragging } = useElementDragDrop(
+    elementId,
+    element?.type,
+  )
+
+  if (!element) return null
 
   if (isDragging) return null
 
   const DesignerElement = FormElements[element.type].designerComponent
 
-  const selectElement = () => designerStoreActions.setSelectedElement(element)
+  const selectElement = () => designerStoreActions.setSelectedElement(element.id)
 
   return (
     <div
       ref={dragRef}
+      // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role
       role="button"
       tabIndex={0}
       onKeyDown={(e) => {
@@ -37,7 +43,10 @@ export function DesignerElementWrapper({ element }: { element: FormElementInstan
         e.stopPropagation()
         selectElement()
       }}
-      className="relative flex h-30 flex-col rounded-md text-foreground ring-1 ring-accent ring-inset hover:cursor-pointer"
+      className={cn(
+        "relative flex h-30 flex-col rounded-md text-foreground ring-1 ring-accent ring-inset hover:cursor-pointer",
+        isSelected && "ring-2 ring-primary",
+      )}
     >
       {/* Drop zones */}
       <div ref={topRef} className="absolute h-1/2 w-full rounded-t-md" />

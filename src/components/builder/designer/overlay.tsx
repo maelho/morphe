@@ -3,31 +3,36 @@ import { DragOverlay } from "@dnd-kit/react"
 import { FormElements } from "../fields/registry"
 import type { ElementsType } from "../form-types"
 import { ElementButton } from "./sidebar/element-button"
-import { useDesignerElements } from "./store"
+import { useDesignerElement, useDesignerElements } from "./store"
 
 export function DragOverlayWrapper() {
-  const elements = useDesignerElements()
+  const elementOrder = useDesignerElements()
 
   return (
-    <DragOverlay>{(source) => <OverlayContent source={source} elements={elements} />}</DragOverlay>
+    <DragOverlay>
+      {(source) => <OverlayContent source={source} elementOrder={elementOrder} />}
+    </DragOverlay>
   )
 }
 
 function OverlayContent({
   source,
-  elements,
+  elementOrder,
 }: {
   source: { data?: Record<string, unknown> }
-  elements: ReturnType<typeof useDesignerElements>
+  elementOrder: ReturnType<typeof useDesignerElements>
 }) {
+  const elementId = (source.data?.elementId as string | undefined) ?? null
+  const element = useDesignerElement(elementId)
+
   if (source.data?.isDesignerButtonElement) {
     const type = source.data.type as ElementsType
     return <ElementButton formElement={FormElements[type]} isDragOverlay />
   }
 
   if (source.data?.isDesignerElement) {
-    const element = elements.find((el) => el.id === source.data?.elementId)
-    if (!element) return <div>Element not found</div>
+    if (!elementId || !element || !elementOrder.includes(elementId))
+      return <div>Element not found</div>
 
     const DesignerElement = FormElements[element.type as ElementsType].designerComponent
     return (

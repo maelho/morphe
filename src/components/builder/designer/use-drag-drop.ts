@@ -3,10 +3,10 @@ import type { DragEndEvent } from "@dnd-kit/react"
 import { nanoid } from "nanoid"
 
 import { FormElements } from "../fields/registry"
-import type { ElementsType, FormElementInstance } from "../form-types"
+import type { ElementsType } from "../form-types"
 import { designerStoreActions } from "./store"
 
-export function useDesignerDragDrop(elements: FormElementInstance[]) {
+export function useDesignerDragDrop(order: string[]) {
   useDragDropMonitor({
     onDragEnd(event: DragEndEvent) {
       const { source, target } = event.operation
@@ -22,13 +22,13 @@ export function useDesignerDragDrop(elements: FormElementInstance[]) {
 
       if (isButton && overArea) {
         const newElement = FormElements[src.type as ElementsType].construct(nanoid(5))
-        designerStoreActions.addElement(elements.length, newElement)
+        designerStoreActions.addElement(order.length, newElement)
         return
       }
 
       if (isButton && overEl) {
         const newElement = FormElements[src.type as ElementsType].construct(nanoid(5))
-        const overIndex = elements.findIndex((el) => el.id === tgt.elementId)
+        const overIndex = order.indexOf(tgt.elementId)
         if (overIndex === -1) throw new Error("element not found")
         const index = tgt.isBottomHalfDesignerElement ? overIndex + 1 : overIndex
         designerStoreActions.addElement(index, newElement)
@@ -36,13 +36,7 @@ export function useDesignerDragDrop(elements: FormElementInstance[]) {
       }
 
       if (isElement && overEl) {
-        const activeIndex = elements.findIndex((el) => el.id === src.elementId)
-        const overIndex = elements.findIndex((el) => el.id === tgt.elementId)
-        if (activeIndex === -1 || overIndex === -1) throw new Error("element not found")
-        const activeElement = { ...elements[activeIndex] }
-        designerStoreActions.removeElement(src.elementId)
-        const index = tgt.isBottomHalfDesignerElement ? overIndex + 1 : overIndex
-        designerStoreActions.addElement(index, activeElement)
+        designerStoreActions.moveElement(src.elementId, tgt.elementId, tgt.isBottomHalfDesignerElement)
       }
     },
   })
