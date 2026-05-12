@@ -22,7 +22,7 @@ function OverlayContent({ source }: { source: { data?: Record<string, unknown> }
     if (!element) return <div>Element not found</div>
     const DesignerElement = FormElements[element.type].designerComponent
     return (
-      <div className="pointer-events-none flex h-30 w-full rounded-md border bg-accent px-4 py-2 opacity-80">
+      <div className="pointer-events-none flex h-12 w-full items-center rounded-md border bg-accent px-3 opacity-80">
         <DesignerElement elementInstance={element} />
       </div>
     )

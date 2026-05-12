@@ -21,7 +21,7 @@ const baseElementSchema = z.object({
   id: z.string(),
 })
 
-const baseFieldAttributesSchema = z.object({
+export const baseFieldAttributesSchema = z.object({
   label: z.string(),
   required: z.boolean(),
   helperText: z.string(),
@@ -57,7 +57,7 @@ const dateValidationSchema = z.object({
   maxDate: z.iso.date().optional(),
 })
 
-const selectOptionSchema = z.object({
+export const selectOptionSchema = z.object({
   value: z.string(),
   label: z.string(),
 })
@@ -97,6 +97,30 @@ export const separatorFieldAttributesSchema = z.object({
   color: colorSchema.optional(),
 })
 
+export const textFieldAttributesSchema = baseFieldAttributesSchema
+  .extend(placeholderAttributesSchema.shape)
+  .extend(textValidationSchema.shape)
+
+export const textareaFieldAttributesSchema = baseFieldAttributesSchema
+  .extend(placeholderAttributesSchema.shape)
+  .extend(textareaValidationSchema.shape)
+
+export const numberFieldAttributesSchema = baseFieldAttributesSchema
+  .extend(placeholderAttributesSchema.shape)
+  .extend(numberValidationSchema.shape)
+
+export const dateFieldAttributesSchema = baseFieldAttributesSchema.extend(
+  dateValidationSchema.shape,
+)
+
+export const checkboxFieldAttributesSchema = baseFieldAttributesSchema
+
+export const selectFieldAttributesSchema = baseFieldAttributesSchema
+  .extend(placeholderAttributesSchema.shape)
+  .extend(selectValidationSchema.shape)
+
+export const spacerFieldAttributesSchema = z.object({ height: z.number().int().min(4).max(200) })
+
 function element<T extends ElementsType, A extends z.ZodType>(type: T, extraAttributes: A) {
   return baseElementSchema.extend({
     type: z.literal(type),
@@ -108,34 +132,14 @@ const elementSchemas = {
   TitleField: element("TitleField", titleFieldAttributesSchema),
   SubtitleField: element("SubtitleField", subtitleFieldAttributesSchema),
   ParagraphField: element("ParagraphField", paragraphFieldAttributesSchema),
-  TextField: element(
-    "TextField",
-    baseFieldAttributesSchema
-      .extend(placeholderAttributesSchema.shape)
-      .extend(textValidationSchema.shape),
-  ),
-  TextareaField: element(
-    "TextareaField",
-    baseFieldAttributesSchema
-      .extend(placeholderAttributesSchema.shape)
-      .extend(textareaValidationSchema.shape),
-  ),
-  NumberField: element(
-    "NumberField",
-    baseFieldAttributesSchema
-      .extend(placeholderAttributesSchema.shape)
-      .extend(numberValidationSchema.shape),
-  ),
-  DateField: element("DateField", baseFieldAttributesSchema.extend(dateValidationSchema.shape)),
-  CheckboxField: element("CheckboxField", baseFieldAttributesSchema),
-  SelectField: element(
-    "SelectField",
-    baseFieldAttributesSchema
-      .extend(placeholderAttributesSchema.shape)
-      .extend(selectValidationSchema.shape),
-  ),
+  TextField: element("TextField", textFieldAttributesSchema),
+  TextareaField: element("TextareaField", textareaFieldAttributesSchema),
+  NumberField: element("NumberField", numberFieldAttributesSchema),
+  DateField: element("DateField", dateFieldAttributesSchema),
+  CheckboxField: element("CheckboxField", checkboxFieldAttributesSchema),
+  SelectField: element("SelectField", selectFieldAttributesSchema),
   SeparatorField: element("SeparatorField", separatorFieldAttributesSchema),
-  SpacerField: element("SpacerField", z.object({ height: z.number().int().positive() })),
+  SpacerField: element("SpacerField", spacerFieldAttributesSchema),
 } satisfies { [K in ElementsType]: z.ZodType }
 
 const elementSchemaValues = Object.values(elementSchemas) as [

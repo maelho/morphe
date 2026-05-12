@@ -1,8 +1,6 @@
 import { TextStrikethroughIcon } from "@phosphor-icons/react"
-import { useForm } from "@tanstack/react-form-start"
-import { useEffect } from "react"
 
-import { Field, FieldError, FieldLabel, FieldDescription } from "#/components/ui/field"
+import { Field, FieldLabel, FieldDescription } from "#/components/ui/field"
 import { Form } from "#/components/ui/form"
 import { Input } from "#/components/ui/input"
 import {
@@ -14,10 +12,11 @@ import {
 } from "#/components/ui/select"
 import { Separator } from "#/components/ui/separator"
 
-import { designerStoreActions } from "../designer/store"
 import { subtitleFieldAttributesSchema } from "../form-schemas"
 import type { ElementInstanceOf, FormElement, FormElementInstance } from "../form-types"
 import { CollapsibleSection } from "./collapsible-section"
+import { StringProperty } from "./property-fields"
+import { useElementForm } from "./use-element-form"
 
 type SubtitleFieldInstance = ElementInstanceOf<"SubtitleField">
 
@@ -66,13 +65,9 @@ const alignmentClasses = {
 function DesignerComponent({ elementInstance }: { elementInstance: FormElementInstance }) {
   const { extraAttributes } = elementInstance as SubtitleFieldInstance
   return (
-    <div className="w-full">
-      <p
-        className={`text-muted-foreground ${fontSizeClasses[extraAttributes.fontSize]} ${fontWeightClasses[extraAttributes.fontWeight]} ${alignmentClasses[extraAttributes.alignment]} ${extraAttributes.color || ""}`}
-        style={extraAttributes.color ? { color: extraAttributes.color } : undefined}
-      >
-        {extraAttributes.subtitle}
-      </p>
+    <div className="flex w-full items-center gap-2 text-sm text-muted-foreground">
+      <TextStrikethroughIcon className="size-4 shrink-0" />
+      <span className="truncate">{extraAttributes.subtitle || "Subtitle field"}</span>
     </div>
   )
 }
@@ -91,20 +86,7 @@ function FormComponent({ elementInstance }: { elementInstance: FormElementInstan
 
 function PropertiesComponent({ elementInstance }: { elementInstance: FormElementInstance }) {
   const element = elementInstance as SubtitleFieldInstance
-
-  const form = useForm({
-    defaultValues: element.extraAttributes,
-    validators: {
-      onChange: subtitleFieldAttributesSchema,
-    },
-    onSubmit: async ({ value }) => {
-      designerStoreActions.updateElement(element.id, { ...element, extraAttributes: value })
-    },
-  })
-
-  useEffect(() => {
-    form.reset(element.extraAttributes)
-  }, [element, form])
+  const form = useElementForm(element, subtitleFieldAttributesSchema)
 
   return (
     <Form
@@ -117,22 +99,7 @@ function PropertiesComponent({ elementInstance }: { elementInstance: FormElement
     >
       <CollapsibleSection title="Content" defaultOpen>
         <form.Field name="subtitle">
-          {(field) => (
-            <Field name={field.name}>
-              <FieldLabel>Subtitle</FieldLabel>
-              <Input
-                value={field.state.value}
-                onBlur={() => {
-                  field.handleBlur()
-                  form.handleSubmit()
-                }}
-                onChange={(e) => field.handleChange(e.target.value)}
-              />
-              {field.state.meta.errors.length > 0 && (
-                <FieldError>{field.state.meta.errors[0]?.message}</FieldError>
-              )}
-            </Field>
-          )}
+          {(field) => <StringProperty field={field} form={form} label="Subtitle" />}
         </form.Field>
       </CollapsibleSection>
 
@@ -145,7 +112,7 @@ function PropertiesComponent({ elementInstance }: { elementInstance: FormElement
               <Field name={field.name}>
                 <FieldLabel>Font Size</FieldLabel>
                 <Select
-                  value={field.state.value}
+                  value={field.state.value as string}
                   onValueChange={(value) => {
                     field.handleChange(value as "sm" | "md" | "lg")
                     form.handleSubmit()
@@ -168,7 +135,7 @@ function PropertiesComponent({ elementInstance }: { elementInstance: FormElement
               <Field name={field.name}>
                 <FieldLabel>Font Weight</FieldLabel>
                 <Select
-                  value={field.state.value}
+                  value={field.state.value as string}
                   onValueChange={(value) => {
                     field.handleChange(value as "normal" | "medium")
                     form.handleSubmit()
@@ -192,7 +159,7 @@ function PropertiesComponent({ elementInstance }: { elementInstance: FormElement
             <Field name={field.name}>
               <FieldLabel>Alignment</FieldLabel>
               <Select
-                value={field.state.value}
+                value={field.state.value as string}
                 onValueChange={(value) => {
                   field.handleChange(value as "left" | "center" | "right")
                   form.handleSubmit()
@@ -217,7 +184,7 @@ function PropertiesComponent({ elementInstance }: { elementInstance: FormElement
               <FieldLabel>Color</FieldLabel>
               <Input
                 type="text"
-                value={field.state.value || ""}
+                value={(field.state.value as string) || ""}
                 onBlur={() => {
                   field.handleBlur()
                   form.handleSubmit()

@@ -1,29 +1,17 @@
 import { CheckSquareOffsetIcon } from "@phosphor-icons/react"
-import { useForm } from "@tanstack/react-form-start"
-import { useEffect } from "react"
-import z from "zod"
 
 import { Checkbox } from "#/components/ui/checkbox"
 import { Field, FieldDescription, FieldError, FieldLabel } from "#/components/ui/field"
 import { Form } from "#/components/ui/form"
-import { Input } from "#/components/ui/input"
-import { Label } from "#/components/ui/label"
 import { Separator } from "#/components/ui/separator"
-import { Switch } from "#/components/ui/switch"
 
-import { designerStoreActions } from "../designer/store"
+import { checkboxFieldAttributesSchema } from "../form-schemas"
 import type { ElementInstanceOf, FormElement, FormElementInstance } from "../form-types"
 import { CollapsibleSection } from "./collapsible-section"
+import { StringProperty, SwitchProperty } from "./property-fields"
+import { useElementForm } from "./use-element-form"
 
 const CHECKED_VALUE = "true"
-
-const checkboxFieldAttributesSchema = z.object({
-  label: z.string(),
-  helperText: z.string(),
-  required: z.boolean(),
-  customErrorMessage: z.string(),
-  disabled: z.boolean(),
-})
 
 type CheckboxFieldInstance = ElementInstanceOf<"CheckboxField">
 
@@ -58,16 +46,9 @@ export const CheckboxFieldFormElement: FormElement = {
 function DesignerComponent({ elementInstance }: { elementInstance: FormElementInstance }) {
   const { extraAttributes } = elementInstance as CheckboxFieldInstance
   return (
-    <div className="w-full space-y-1">
-      <Label className="flex items-center gap-2 text-sm">
-        <Checkbox disabled className={extraAttributes.disabled ? "opacity-50" : ""} />
-        {extraAttributes.label}
-        {extraAttributes.required && <span className="text-destructive">*</span>}
-      </Label>
-      {extraAttributes.helperText && (
-        <p className="ml-6 text-xs text-muted-foreground">{extraAttributes.helperText}</p>
-      )}
-      {extraAttributes.disabled && <p className="text-xs text-muted-foreground">Disabled</p>}
+    <div className="flex w-full items-center gap-2 text-sm text-muted-foreground">
+      <CheckSquareOffsetIcon className="size-4 shrink-0" />
+      <span className="truncate">{extraAttributes.label || "Checkbox field"}</span>
     </div>
   )
 }
@@ -107,18 +88,7 @@ function FormComponent({
 
 function PropertiesComponent({ elementInstance }: { elementInstance: FormElementInstance }) {
   const element = elementInstance as CheckboxFieldInstance
-
-  const form = useForm({
-    defaultValues: element.extraAttributes,
-    validators: { onChange: checkboxFieldAttributesSchema },
-    onSubmit: async ({ value }) => {
-      designerStoreActions.updateElement(element.id, { ...element, extraAttributes: value })
-    },
-  })
-
-  useEffect(() => {
-    form.reset(element.extraAttributes)
-  }, [element, form])
+  const form = useElementForm(element, checkboxFieldAttributesSchema)
 
   return (
     <Form
@@ -131,34 +101,16 @@ function PropertiesComponent({ elementInstance }: { elementInstance: FormElement
     >
       <CollapsibleSection title="Basic Settings" defaultOpen>
         <form.Field name="label">
-          {(field) => (
-            <Field name={field.name}>
-              <FieldLabel>Label</FieldLabel>
-              <Input
-                value={field.state.value}
-                onBlur={() => {
-                  field.handleBlur()
-                  form.handleSubmit()
-                }}
-                onChange={(e) => field.handleChange(e.target.value)}
-              />
-            </Field>
-          )}
+          {(field) => <StringProperty field={field} form={form} label="Label" />}
         </form.Field>
         <form.Field name="helperText">
           {(field) => (
-            <Field name={field.name}>
-              <FieldLabel>Helper Text</FieldLabel>
-              <Input
-                value={field.state.value}
-                onBlur={() => {
-                  field.handleBlur()
-                  form.handleSubmit()
-                }}
-                onChange={(e) => field.handleChange(e.target.value)}
-              />
-              <FieldDescription>Appears below the checkbox</FieldDescription>
-            </Field>
+            <StringProperty
+              field={field}
+              form={form}
+              label="Helper Text"
+              description="Appears below the checkbox"
+            />
           )}
         </form.Field>
       </CollapsibleSection>
@@ -167,36 +119,17 @@ function PropertiesComponent({ elementInstance }: { elementInstance: FormElement
 
       <CollapsibleSection title="Validation" defaultOpen>
         <form.Field name="required">
-          {(field) => (
-            <Field name={field.name}>
-              <div className="flex items-center justify-between">
-                <FieldLabel className="mb-0!">Required</FieldLabel>
-                <Switch
-                  checked={field.state.value}
-                  onCheckedChange={(checked) => {
-                    field.handleChange(checked)
-                    form.handleSubmit()
-                  }}
-                />
-              </div>
-            </Field>
-          )}
+          {(field) => <SwitchProperty field={field} form={form} label="Required" />}
         </form.Field>
         <form.Field name="customErrorMessage">
           {(field) => (
-            <Field name={field.name}>
-              <FieldLabel>Custom Error Message</FieldLabel>
-              <Input
-                value={field.state.value || ""}
-                onBlur={() => {
-                  field.handleBlur()
-                  form.handleSubmit()
-                }}
-                onChange={(e) => field.handleChange(e.target.value)}
-                placeholder="e.g., You must agree to continue"
-              />
-              <FieldDescription>Shows when validation fails</FieldDescription>
-            </Field>
+            <StringProperty
+              field={field}
+              form={form}
+              label="Custom Error Message"
+              placeholder="e.g., You must agree to continue"
+              description="Shows when validation fails"
+            />
           )}
         </form.Field>
       </CollapsibleSection>
@@ -206,19 +139,12 @@ function PropertiesComponent({ elementInstance }: { elementInstance: FormElement
       <CollapsibleSection title="Advanced">
         <form.Field name="disabled">
           {(field) => (
-            <Field name={field.name}>
-              <div className="flex items-center justify-between">
-                <FieldLabel className="mb-0!">Disabled</FieldLabel>
-                <Switch
-                  checked={field.state.value}
-                  onCheckedChange={(checked) => {
-                    field.handleChange(checked)
-                    form.handleSubmit()
-                  }}
-                />
-              </div>
-              <FieldDescription>Prevent user interaction</FieldDescription>
-            </Field>
+            <SwitchProperty
+              field={field}
+              form={form}
+              label="Disabled"
+              description="Prevent user interaction"
+            />
           )}
         </form.Field>
       </CollapsibleSection>

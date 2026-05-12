@@ -1,47 +1,50 @@
 import { useDragDropMonitor } from "@dnd-kit/react"
 import type { DragEndEvent } from "@dnd-kit/react"
 import { nanoid } from "nanoid"
+import { useCallback } from "react"
 
 import { FormElements } from "../fields/registry"
 import type { ElementsType } from "../form-types"
-import { designerStoreActions } from "./store"
+import { designerStore, designerStoreActions } from "./store"
 
-export function useDesignerDragDrop(order: string[]) {
-  useDragDropMonitor({
-    onDragEnd(event: DragEndEvent) {
-      const { source, target } = event.operation
-      if (!source || !target) return
+export function useDesignerDragDrop() {
+  const onDragEnd = useCallback((event: DragEndEvent) => {
+    const currentOrder = designerStore.state.order
 
-      const src = source.data
-      const tgt = target.data
+    const { source, target } = event.operation
+    if (!source || !target) return
 
-      const isButton = src?.isDesignerButtonElement
-      const isElement = src?.isDesignerElement
-      const overArea = tgt?.isDesignerDropArea
-      const overEl = tgt?.isTopHalfDesignerElement || tgt?.isBottomHalfDesignerElement
+    const src = source.data
+    const tgt = target.data
 
-      if (isButton && overArea) {
-        const newElement = FormElements[src.type as ElementsType].construct(nanoid(5))
-        designerStoreActions.addElement(order.length, newElement)
-        return
-      }
+    const isButton = src?.isDesignerButtonElement
+    const isElement = src?.isDesignerElement
+    const overArea = tgt?.isDesignerDropArea
+    const overEl = tgt?.isTopHalfDesignerElement || tgt?.isBottomHalfDesignerElement
 
-      if (isButton && overEl) {
-        const newElement = FormElements[src.type as ElementsType].construct(nanoid(5))
-        const overIndex = order.indexOf(tgt.elementId)
-        if (overIndex === -1) throw new Error("element not found")
-        const index = tgt.isBottomHalfDesignerElement ? overIndex + 1 : overIndex
-        designerStoreActions.addElement(index, newElement)
-        return
-      }
+    if (isButton && overArea) {
+      const newElement = FormElements[src.type as ElementsType].construct(nanoid(5))
+      designerStoreActions.addElement(currentOrder.length, newElement)
+      return
+    }
 
-      if (isElement && overEl) {
-        designerStoreActions.moveElement(
-          src.elementId,
-          tgt.elementId,
-          tgt.isBottomHalfDesignerElement,
-        )
-      }
-    },
-  })
+    if (isButton && overEl) {
+      const newElement = FormElements[src.type as ElementsType].construct(nanoid(5))
+      const overIndex = currentOrder.indexOf(tgt.elementId)
+      if (overIndex === -1) throw new Error("element not found")
+      const index = tgt.isBottomHalfDesignerElement ? overIndex + 1 : overIndex
+      designerStoreActions.addElement(index, newElement)
+      return
+    }
+
+    if (isElement && overEl) {
+      designerStoreActions.moveElement(
+        src.elementId,
+        tgt.elementId,
+        tgt.isBottomHalfDesignerElement,
+      )
+    }
+  }, [])
+
+  useDragDropMonitor({ onDragEnd })
 }

@@ -4,8 +4,9 @@
 @import "tw-animate-css";
 
 @import "@fontsource-variable/inter";
+@import "@fontsource-variable/jetbrains-mono";
 
-@import "@fontsource-variable/geist";
+@import "shadcn/tailwind.css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -21,9 +22,7 @@
   --animate-toast-error-even: toast-error-even 0.28s cubic-bezier(0.5, 1, 0.89, 1);
 
   --font-heading: "Inter", sans-serif;
-
-  --font-mono: "Geist Mono", monospace;
-
+  --font-mono: "JetBrains Mono Variable", monospace;
   --font-sans: "Inter", sans-serif;
 
   --color-sidebar-ring: var(--sidebar-ring);
@@ -192,6 +191,12 @@
     }
     100% {
       translate: 0 0;
+    }
+  }
+  --animate-skeleton: skeleton 2s -1s infinite linear;
+  @keyframes skeleton {
+    to {
+      background-position: -200% 0;
     }
   }
 }
@@ -370,6 +375,11 @@
   * {
     @apply border-border outline-ring/50;
   }
+  body:has([data-inspector="properties"]) [data-slot="drawer-backdrop"] {
+    background-color: transparent;
+    backdrop-filter: none;
+    pointer-events: none;
+  }
   body {
     @apply bg-background text-foreground;
   }
@@ -381,6 +391,12 @@
   }
   html {
     @apply font-mono;
+  }
+  code,
+  kbd,
+  samp,
+  pre {
+    font-family: var(--font-mono);
   }
   code,
   kbd,

@@ -1,32 +1,51 @@
 import { useDraggable, useDroppable } from "@dnd-kit/react"
+import { useMemo, type RefObject } from "react"
 
 import type { ElementsType } from "../form-types"
 
-export function useElementDragDrop(elementId: string, type?: ElementsType) {
-  const { ref: topRef, isDropTarget: topIsOver } = useDroppable({
-    id: `designer-element-${elementId}-top-half`,
-    data: {
-      type,
-      elementId,
-      isTopHalfDesignerElement: true,
-      isBottomHalfDesignerElement: false,
-    },
-  })
+export function useElementDragDrop(
+  elementId: string,
+  type?: ElementsType,
+  handleRef?: RefObject<HTMLElement | null>,
+) {
+  const topDroppableConfig = useMemo(
+    () => ({
+      id: `designer-element-${elementId}-top-half`,
+      data: {
+        type,
+        elementId,
+        isTopHalfDesignerElement: true,
+        isBottomHalfDesignerElement: false,
+      },
+    }),
+    [elementId, type],
+  )
 
-  const { ref: bottomRef, isDropTarget: bottomIsOver } = useDroppable({
-    id: `designer-element-${elementId}-bottom-half`,
-    data: {
-      type,
-      elementId,
-      isTopHalfDesignerElement: false,
-      isBottomHalfDesignerElement: true,
-    },
-  })
+  const bottomDroppableConfig = useMemo(
+    () => ({
+      id: `designer-element-${elementId}-bottom-half`,
+      data: {
+        type,
+        elementId,
+        isTopHalfDesignerElement: false,
+        isBottomHalfDesignerElement: true,
+      },
+    }),
+    [elementId, type],
+  )
 
-  const { ref: dragRef, isDragging } = useDraggable({
-    id: `designer-element-${elementId}-drag-handler`,
-    data: { type, elementId, isDesignerElement: true },
-  })
+  const draggableConfig = useMemo(
+    () => ({
+      id: `designer-element-${elementId}-drag-handler`,
+      data: { type, elementId, isDesignerElement: true },
+      handle: handleRef,
+    }),
+    [elementId, type, handleRef],
+  )
+
+  const { ref: topRef, isDropTarget: topIsOver } = useDroppable(topDroppableConfig)
+  const { ref: bottomRef, isDropTarget: bottomIsOver } = useDroppable(bottomDroppableConfig)
+  const { ref: dragRef, isDragging } = useDraggable(draggableConfig)
 
   return { topRef, bottomRef, dragRef, topIsOver, bottomIsOver, isDragging }
 }

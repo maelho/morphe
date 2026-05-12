@@ -1,36 +1,18 @@
 import { TextboxIcon } from "@phosphor-icons/react"
-import { useForm } from "@tanstack/react-form-start"
-import { useEffect } from "react"
-import z from "zod"
 
 import { Field, FieldError, FieldLabel, FieldDescription } from "#/components/ui/field"
 import { Form } from "#/components/ui/form"
 import { Input } from "#/components/ui/input"
-import { Label } from "#/components/ui/label"
 import { Separator } from "#/components/ui/separator"
-import { Switch } from "#/components/ui/switch"
 
-import { designerStoreActions } from "../designer/store"
-import { namedPatternSchema } from "../form-schemas" // import the enum
+import { textFieldAttributesSchema } from "../form-schemas"
 import type { NamedPattern } from "../form-schemas"
 import type { ElementInstanceOf, FormElement, FormElementInstance } from "../form-types"
 import { CollapsibleSection } from "./collapsible-section"
-import { FormNumberField } from "./form-number-field"
 import { PatternSelect } from "./pattern-select"
+import { StringProperty, SwitchProperty, NumberProperty } from "./property-fields"
+import { useElementForm } from "./use-element-form"
 import { createTextFieldSchema } from "./validation"
-
-const textFieldPropertiesSchema = z.object({
-  label: z.string(),
-  placeholder: z.string(),
-  helperText: z.string(),
-  required: z.boolean(),
-  minLength: z.number().int().nonnegative().optional(),
-  maxLength: z.number().int().nonnegative().optional(),
-  pattern: namedPatternSchema.optional(),
-  customPattern: z.string().optional(),
-  customErrorMessage: z.string(),
-  disabled: z.boolean(),
-})
 
 type TextFieldInstance = ElementInstanceOf<"TextField">
 
@@ -72,22 +54,9 @@ export const TextFieldFormElement: FormElement = {
 function DesignerComponent({ elementInstance }: { elementInstance: FormElementInstance }) {
   const { extraAttributes } = elementInstance as TextFieldInstance
   return (
-    <div className="w-full space-y-1">
-      <Label className="text-sm font-medium">
-        {extraAttributes.label}
-        {extraAttributes.required && <span className="ml-1 text-destructive">*</span>}
-      </Label>
-      <Input
-        placeholder={extraAttributes.placeholder}
-        disabled
-        className={extraAttributes.disabled ? "opacity-50" : ""}
-      />
-      {extraAttributes.maxLength && (
-        <p className="text-right text-xs text-muted-foreground">
-          {0}/{extraAttributes.maxLength}
-        </p>
-      )}
-      {extraAttributes.disabled && <p className="text-xs text-muted-foreground">Disabled</p>}
+    <div className="flex w-full items-center gap-2 text-sm text-muted-foreground">
+      <TextboxIcon className="size-4 shrink-0" />
+      <span className="truncate">{extraAttributes.label || "Text field"}</span>
     </div>
   )
 }
@@ -128,20 +97,7 @@ function FormComponent({
 
 function PropertiesComponent({ elementInstance }: { elementInstance: FormElementInstance }) {
   const element = elementInstance as TextFieldInstance
-
-  const form = useForm({
-    defaultValues: element.extraAttributes,
-    validators: {
-      onChange: textFieldPropertiesSchema,
-    },
-    onSubmit: async ({ value }) => {
-      designerStoreActions.updateElement(element.id, { ...element, extraAttributes: value })
-    },
-  })
-
-  useEffect(() => {
-    form.reset(element.extraAttributes)
-  }, [element, form])
+  const form = useElementForm(element, textFieldAttributesSchema)
 
   return (
     <Form
@@ -154,49 +110,19 @@ function PropertiesComponent({ elementInstance }: { elementInstance: FormElement
     >
       <CollapsibleSection title="Basic Settings" defaultOpen>
         <form.Field name="label">
-          {(field) => (
-            <Field name={field.name}>
-              <FieldLabel>Label</FieldLabel>
-              <Input
-                value={field.state.value}
-                onBlur={() => {
-                  field.handleBlur()
-                  form.handleSubmit()
-                }}
-                onChange={(e) => field.handleChange(e.target.value)}
-              />
-            </Field>
-          )}
+          {(field) => <StringProperty field={field} form={form} label="Label" />}
         </form.Field>
         <form.Field name="placeholder">
-          {(field) => (
-            <Field name={field.name}>
-              <FieldLabel>Placeholder</FieldLabel>
-              <Input
-                value={field.state.value}
-                onBlur={() => {
-                  field.handleBlur()
-                  form.handleSubmit()
-                }}
-                onChange={(e) => field.handleChange(e.target.value)}
-              />
-            </Field>
-          )}
+          {(field) => <StringProperty field={field} form={form} label="Placeholder" />}
         </form.Field>
         <form.Field name="helperText">
           {(field) => (
-            <Field name={field.name}>
-              <FieldLabel>Helper Text</FieldLabel>
-              <Input
-                value={field.state.value}
-                onBlur={() => {
-                  field.handleBlur()
-                  form.handleSubmit()
-                }}
-                onChange={(e) => field.handleChange(e.target.value)}
-              />
-              <FieldDescription>Appears below the field</FieldDescription>
-            </Field>
+            <StringProperty
+              field={field}
+              form={form}
+              label="Helper Text"
+              description="Appears below the field"
+            />
           )}
         </form.Field>
       </CollapsibleSection>
@@ -205,49 +131,15 @@ function PropertiesComponent({ elementInstance }: { elementInstance: FormElement
 
       <CollapsibleSection title="Validation" defaultOpen>
         <form.Field name="required">
-          {(field) => (
-            <Field name={field.name}>
-              <div className="flex items-center justify-between">
-                <FieldLabel className="mb-0!">Required</FieldLabel>
-                <Switch
-                  checked={field.state.value}
-                  onCheckedChange={(checked) => {
-                    field.handleChange(checked)
-                    form.handleSubmit()
-                  }}
-                />
-              </div>
-            </Field>
-          )}
+          {(field) => <SwitchProperty field={field} form={form} label="Required" />}
         </form.Field>
 
         <div className="grid grid-cols-2 gap-2">
           <form.Field name="minLength">
-            {(field) => (
-              <FormNumberField
-                label="Min Length"
-                value={field.state.value ?? null}
-                onValueChange={(value) => {
-                  field.handleChange(value ?? undefined)
-                  form.handleSubmit()
-                }}
-                min={0}
-              />
-            )}
+            {(field) => <NumberProperty field={field} form={form} label="Min Length" min={0} />}
           </form.Field>
-
           <form.Field name="maxLength">
-            {(field) => (
-              <FormNumberField
-                label="Max Length"
-                value={field.state.value ?? null}
-                onValueChange={(value) => {
-                  field.handleChange(value ?? undefined)
-                  form.handleSubmit()
-                }}
-                min={0}
-              />
-            )}
+            {(field) => <NumberProperty field={field} form={form} label="Max Length" min={0} />}
           </form.Field>
         </div>
 
@@ -274,19 +166,13 @@ function PropertiesComponent({ elementInstance }: { elementInstance: FormElement
 
         <form.Field name="customErrorMessage">
           {(field) => (
-            <Field name={field.name}>
-              <FieldLabel>Custom Error Message</FieldLabel>
-              <Input
-                value={field.state.value || ""}
-                onBlur={() => {
-                  field.handleBlur()
-                  form.handleSubmit()
-                }}
-                onChange={(e) => field.handleChange(e.target.value)}
-                placeholder="e.g., Please enter a valid email"
-              />
-              <FieldDescription>Shows when validation fails</FieldDescription>
-            </Field>
+            <StringProperty
+              field={field}
+              form={form}
+              label="Custom Error Message"
+              placeholder="e.g., Please enter a valid email"
+              description="Shows when validation fails"
+            />
           )}
         </form.Field>
       </CollapsibleSection>
@@ -296,19 +182,12 @@ function PropertiesComponent({ elementInstance }: { elementInstance: FormElement
       <CollapsibleSection title="Advanced">
         <form.Field name="disabled">
           {(field) => (
-            <Field name={field.name}>
-              <div className="flex items-center justify-between">
-                <FieldLabel className="mb-0!">Disabled</FieldLabel>
-                <Switch
-                  checked={field.state.value}
-                  onCheckedChange={(checked) => {
-                    field.handleChange(checked)
-                    form.handleSubmit()
-                  }}
-                />
-              </div>
-              <FieldDescription>Prevent user interaction</FieldDescription>
-            </Field>
+            <SwitchProperty
+              field={field}
+              form={form}
+              label="Disabled"
+              description="Prevent user interaction"
+            />
           )}
         </form.Field>
       </CollapsibleSection>
