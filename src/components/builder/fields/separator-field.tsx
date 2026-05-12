@@ -1,6 +1,4 @@
 import { MinusIcon } from "@phosphor-icons/react"
-import { useForm } from "@tanstack/react-form-start"
-import { useEffect } from "react"
 
 import { Field, FieldLabel, FieldDescription } from "#/components/ui/field"
 import { Form } from "#/components/ui/form"
@@ -14,10 +12,11 @@ import {
 } from "#/components/ui/select"
 import { Separator } from "#/components/ui/separator"
 
-import { designerStoreActions } from "../designer/store"
 import { separatorFieldAttributesSchema } from "../form-schemas"
 import type { ElementInstanceOf, FormElement, FormElementInstance } from "../form-types"
 import { CollapsibleSection } from "./collapsible-section"
+import { NumberProperty } from "./property-fields"
+import { useElementForm } from "./use-element-form"
 
 type SeparatorFieldInstance = ElementInstanceOf<"SeparatorField">
 
@@ -50,17 +49,11 @@ const borderStyleClasses = {
   dotted: "border-dotted",
 }
 
-function DesignerComponent({ elementInstance }: { elementInstance: FormElementInstance }) {
-  const { extraAttributes } = elementInstance as SeparatorFieldInstance
+function DesignerComponent(_elementInstance: { elementInstance: FormElementInstance }) {
   return (
-    <div className="w-full py-2">
-      <Separator
-        className={`${borderStyleClasses[extraAttributes.style]}`}
-        style={{
-          borderTopWidth: extraAttributes.thickness,
-          borderColor: extraAttributes.color || undefined,
-        }}
-      />
+    <div className="flex w-full items-center gap-2 text-sm text-muted-foreground">
+      <MinusIcon className="size-4 shrink-0" />
+      <span>Separator</span>
     </div>
   )
 }
@@ -80,20 +73,7 @@ function FormComponent({ elementInstance }: { elementInstance: FormElementInstan
 
 function PropertiesComponent({ elementInstance }: { elementInstance: FormElementInstance }) {
   const element = elementInstance as SeparatorFieldInstance
-
-  const form = useForm({
-    defaultValues: element.extraAttributes,
-    validators: {
-      onChange: separatorFieldAttributesSchema,
-    },
-    onSubmit: async ({ value }) => {
-      designerStoreActions.updateElement(element.id, { ...element, extraAttributes: value })
-    },
-  })
-
-  useEffect(() => {
-    form.reset(element.extraAttributes)
-  }, [element, form])
+  const form = useElementForm(element, separatorFieldAttributesSchema)
 
   return (
     <Form
@@ -107,20 +87,7 @@ function PropertiesComponent({ elementInstance }: { elementInstance: FormElement
       <CollapsibleSection title="Appearance" defaultOpen>
         <form.Field name="thickness">
           {(field) => (
-            <Field name={field.name}>
-              <FieldLabel>Thickness (px)</FieldLabel>
-              <Input
-                type="number"
-                min={1}
-                max={20}
-                value={field.state.value}
-                onBlur={() => {
-                  field.handleBlur()
-                  form.handleSubmit()
-                }}
-                onChange={(e) => field.handleChange(Number(e.target.value))}
-              />
-            </Field>
+            <NumberProperty field={field} form={form} label="Thickness (px)" min={1} max={20} />
           )}
         </form.Field>
 
@@ -129,7 +96,7 @@ function PropertiesComponent({ elementInstance }: { elementInstance: FormElement
             <Field name={field.name}>
               <FieldLabel>Style</FieldLabel>
               <Select
-                value={field.state.value}
+                value={field.state.value as string}
                 onValueChange={(value) => {
                   field.handleChange(value as "solid" | "dashed" | "dotted")
                   form.handleSubmit()
@@ -154,7 +121,7 @@ function PropertiesComponent({ elementInstance }: { elementInstance: FormElement
               <FieldLabel>Color</FieldLabel>
               <Input
                 type="text"
-                value={field.state.value || ""}
+                value={(field.state.value as string) || ""}
                 onBlur={() => {
                   field.handleBlur()
                   form.handleSubmit()
