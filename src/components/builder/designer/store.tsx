@@ -9,13 +9,17 @@ export type DesignerStore = {
   selectedElementId: string | null
 }
 
-const designerStore = new Store<DesignerStore>({
+export const designerStore = new Store<DesignerStore>({
   elements: {},
   order: [],
   selectedElementId: null,
 })
 
 export const designerStoreActions = {
+  state() {
+    return designerStore.state
+  },
+
   addElement(index: number, element: FormElementInstance) {
     designerStore.setState((state) => ({
       ...state,

@@ -1,15 +1,17 @@
+// oxlint-disable jsx-a11y/no-static-element-interactions
+// oxlint-disable jsx-a11y/click-events-have-key-events
 import { useDroppable } from "@dnd-kit/react"
 
 import { cn } from "#/lib/utils"
 
 import { DesignerElementWrapper } from "./element-wrapper"
 import { DesignerSidebar } from "./sidebar/shell"
-import { useDesignerElements } from "./store"
+import { designerStoreActions, useDesignerElements } from "./store"
 import { useDesignerDragDrop } from "./use-drag-drop"
 
 export function Designer() {
   const elementOrder = useDesignerElements()
-  useDesignerDragDrop(elementOrder)
+  useDesignerDragDrop()
 
   const { ref, isDropTarget } = useDroppable({
     id: "designer-drop-area",
@@ -17,19 +19,20 @@ export function Designer() {
   })
 
   return (
-    <div className="flex h-full w-full">
-      <div className="w-full p-4">
+    <div className="relative flex h-full w-full min-w-0">
+      <DesignerSidebar />
+      <div className="min-w-0 flex-1 p-4">
         <div
           ref={ref}
           className={cn(
             "m-auto flex h-full max-w-230 flex-1 grow flex-col items-center justify-start overflow-y-auto rounded-xl bg-background",
             isDropTarget && "ring-2 ring-purple-200",
           )}
+          onClick={() => designerStoreActions.setSelectedElement(null)}
         >
           <DropAreaContent elementOrder={elementOrder} isDropTarget={isDropTarget} />
         </div>
       </div>
-      <DesignerSidebar />
     </div>
   )
 }
