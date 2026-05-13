@@ -19,7 +19,9 @@ export function useElementForm(element: FormElementInstance, schema: z.ZodType) 
 
   useEffect(() => {
     form.reset(element.extraAttributes)
-  }, [element, form])
+    // form is stable (same instance), only reset when element changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [element])
 
   return form
 }

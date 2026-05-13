@@ -2,15 +2,14 @@ import { z } from "zod"
 
 import { getPatternValidator } from "./pattern-select"
 
-function buildStringSchema(
-  attrs: {
-    required: boolean
-    minLength?: number
-    maxLength?: number
-    customErrorMessage?: string
-  },
-  defaultErrorMessage: string,
-): z.ZodString {
+type BaseStringAttrs = {
+  required: boolean
+  minLength?: number
+  maxLength?: number
+  customErrorMessage?: string
+}
+
+function buildStringSchema(attrs: BaseStringAttrs, defaultErrorMessage: string): z.ZodString {
   let schema = z.string()
 
   if (attrs.required) {
@@ -33,24 +32,12 @@ function buildStringSchema(
 }
 
 export const createTextareaFieldSchema = (
-  attrs: {
-    required: boolean
-    minLength?: number
-    maxLength?: number
-    customErrorMessage?: string
-  },
+  attrs: BaseStringAttrs,
   defaultErrorMessage = "This field is required",
 ) => buildStringSchema(attrs, defaultErrorMessage)
 
 export const createTextFieldSchema = (
-  attrs: {
-    required: boolean
-    minLength?: number
-    maxLength?: number
-    pattern?: string
-    customPattern?: string
-    customErrorMessage?: string
-  },
+  attrs: BaseStringAttrs & { pattern?: string; customPattern?: string },
   defaultErrorMessage = "This field is required",
 ) => {
   const schema = buildStringSchema(attrs, defaultErrorMessage)
@@ -126,7 +113,8 @@ export const createDateFieldSchema = (
     return schema.refine(
       (val) => {
         if (!val || val.trim() === "") return true
-        if (isNaN(new Date(val).getTime())) return false
+        const date = new Date(val)
+        if (isNaN(date.getTime())) return false
         if (attrs.minDate && val < attrs.minDate) return false
         if (attrs.maxDate && val > attrs.maxDate) return false
         return true

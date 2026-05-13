@@ -1,21 +1,20 @@
-import { HashStraightIcon } from "@phosphor-icons/react"
+import { HashIcon } from "@phosphor-icons/react"
 
 import { Field, FieldError, FieldLabel, FieldDescription } from "#/components/ui/field"
 import { Form } from "#/components/ui/form"
 import { Input } from "#/components/ui/input"
-import { Separator } from "#/components/ui/separator"
 
 import { numberFieldAttributesSchema } from "../form-schemas"
 import type { ElementInstanceOf, FormElement, FormElementInstance } from "../form-types"
-import { CollapsibleSection } from "./collapsible-section"
-import { StringProperty, SwitchProperty, NumberProperty } from "./property-fields"
+import { BaseProperties } from "./base-properties"
+import { NumberProperty } from "./property-fields"
 import { useElementForm } from "./use-element-form"
 import { createNumberFieldSchema } from "./validation"
 
 type NumberFieldInstance = ElementInstanceOf<"NumberField">
 
 const defaultAttributes: NumberFieldInstance["extraAttributes"] = {
-  label: "Number field",
+  label: "Number",
   placeholder: "0",
   helperText: "",
   required: false,
@@ -34,7 +33,7 @@ export const NumberFieldFormElement: FormElement = {
     extraAttributes: defaultAttributes,
   }),
   designerButtonElement: {
-    icon: HashStraightIcon,
+    icon: HashIcon,
     label: "Number",
   },
   designerComponent: DesignerComponent,
@@ -52,8 +51,8 @@ function DesignerComponent({ elementInstance }: { elementInstance: FormElementIn
   const { extraAttributes } = elementInstance as NumberFieldInstance
   return (
     <div className="flex w-full items-center gap-2 text-sm text-muted-foreground">
-      <HashStraightIcon className="size-4 shrink-0" />
-      <span className="truncate">{extraAttributes.label || "Number field"}</span>
+      <HashIcon className="size-4 shrink-0" />
+      <span className="truncate">{extraAttributes.label || "Number"}</span>
     </div>
   )
 }
@@ -101,86 +100,38 @@ function PropertiesComponent({ elementInstance }: { elementInstance: FormElement
 
   return (
     <Form
-      className="space-y-2"
       onSubmit={(e) => {
         e.preventDefault()
         e.stopPropagation()
         form.handleSubmit()
       }}
     >
-      <CollapsibleSection title="Basic Settings" defaultOpen>
-        <form.Field name="label">
-          {(field) => <StringProperty field={field} form={form} label="Label" />}
-        </form.Field>
-        <form.Field name="placeholder">
-          {(field) => <StringProperty field={field} form={form} label="Placeholder" />}
-        </form.Field>
-        <form.Field name="helperText">
-          {(field) => (
-            <StringProperty
-              field={field}
-              form={form}
-              label="Helper Text"
-              description="Appears below the field"
-            />
-          )}
-        </form.Field>
-        <form.Field name="step">
-          {(field) => (
-            <NumberProperty
-              field={field}
-              form={form}
-              label="Step"
-              min={1}
-              description="Increment step value"
-            />
-          )}
-        </form.Field>
-      </CollapsibleSection>
-
-      <Separator />
-
-      <CollapsibleSection title="Validation" defaultOpen>
-        <form.Field name="required">
-          {(field) => <SwitchProperty field={field} form={form} label="Required" />}
-        </form.Field>
-
-        <div className="grid grid-cols-2 gap-2">
-          <form.Field name="min">
-            {(field) => <NumberProperty field={field} form={form} label="Min Value" />}
+      <BaseProperties
+        form={form}
+        extraBasicSettings={
+          <form.Field name="step">
+            {(field) => (
+              <NumberProperty
+                field={field}
+                form={form}
+                label="Step"
+                min={1}
+                description="Increment step value"
+              />
+            )}
           </form.Field>
-          <form.Field name="max">
-            {(field) => <NumberProperty field={field} form={form} label="Max Value" />}
-          </form.Field>
-        </div>
-
-        <form.Field name="customErrorMessage">
-          {(field) => (
-            <StringProperty
-              field={field}
-              form={form}
-              label="Custom Error Message"
-              placeholder="e.g., Value must be between 1 and 100"
-              description="Shows when validation fails"
-            />
-          )}
-        </form.Field>
-      </CollapsibleSection>
-
-      <Separator />
-
-      <CollapsibleSection title="Advanced">
-        <form.Field name="disabled">
-          {(field) => (
-            <SwitchProperty
-              field={field}
-              form={form}
-              label="Disabled"
-              description="Prevent user interaction"
-            />
-          )}
-        </form.Field>
-      </CollapsibleSection>
+        }
+        extraValidationSettings={
+          <div className="grid grid-cols-2 gap-2">
+            <form.Field name="min">
+              {(field) => <NumberProperty field={field} form={form} label="Min Value" />}
+            </form.Field>
+            <form.Field name="max">
+              {(field) => <NumberProperty field={field} form={form} label="Max Value" />}
+            </form.Field>
+          </div>
+        }
+      />
     </Form>
   )
 }

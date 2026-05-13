@@ -1,4 +1,5 @@
-import { ListBulletsIcon } from "@phosphor-icons/react"
+// oxlint-disable react/no-children-prop
+import { ListIcon } from "@phosphor-icons/react"
 
 import { Field, FieldDescription, FieldError, FieldLabel } from "#/components/ui/field"
 import { Form } from "#/components/ui/form"
@@ -7,9 +8,10 @@ import { Separator } from "#/components/ui/separator"
 
 import { selectFieldAttributesSchema } from "../form-schemas"
 import type { ElementInstanceOf, FormElement, FormElementInstance } from "../form-types"
+import { BaseProperties } from "./base-properties"
 import { CollapsibleSection } from "./collapsible-section"
 import { OptionsEditor } from "./options-editor"
-import { StringProperty, SwitchProperty } from "./property-fields"
+import { SwitchProperty } from "./property-fields"
 import { useElementForm } from "./use-element-form"
 import { createSelectFieldSchema } from "./validation"
 
@@ -22,7 +24,7 @@ const defaultOptions = [
 ]
 
 const defaultAttributes: SelectFieldInstance["extraAttributes"] = {
-  label: "Select field",
+  label: "Dropdown",
   placeholder: "Choose an option",
   helperText: "",
   required: false,
@@ -41,8 +43,8 @@ export const SelectFieldFormElement: FormElement = {
     extraAttributes: defaultAttributes,
   }),
   designerButtonElement: {
-    icon: ListBulletsIcon,
-    label: "Select",
+    icon: ListIcon,
+    label: "Dropdown",
   },
   designerComponent: DesignerComponent,
   formComponent: FormComponent,
@@ -58,8 +60,8 @@ function DesignerComponent({ elementInstance }: { elementInstance: FormElementIn
   const { extraAttributes } = elementInstance as SelectFieldInstance
   return (
     <div className="flex w-full items-center gap-2 text-sm text-muted-foreground">
-      <ListBulletsIcon className="size-4 shrink-0" />
-      <span className="truncate">{extraAttributes.label || "Select field"}</span>
+      <ListIcon className="size-4 shrink-0" />
+      <span className="truncate">{extraAttributes.label || "Dropdown"}</span>
     </div>
   )
 }
@@ -114,109 +116,61 @@ function PropertiesComponent({ elementInstance }: { elementInstance: FormElement
 
   return (
     <Form
-      className="space-y-2"
       onSubmit={(e) => {
         e.preventDefault()
         e.stopPropagation()
         form.handleSubmit()
       }}
     >
-      <CollapsibleSection title="Basic Settings" defaultOpen>
-        <form.Field name="label">
-          {(field) => <StringProperty field={field} form={form} label="Label" />}
-        </form.Field>
-        <form.Field name="placeholder">
-          {(field) => <StringProperty field={field} form={form} label="Placeholder" />}
-        </form.Field>
-        <form.Field name="helperText">
-          {(field) => (
-            <StringProperty
-              field={field}
-              form={form}
-              label="Helper Text"
-              description="Appears below the field"
-            />
-          )}
-        </form.Field>
-      </CollapsibleSection>
-
-      <Separator />
-
-      <CollapsibleSection title="Options" defaultOpen>
-        <form.Field name="options">
-          {(field) => (
-            <OptionsEditor
-              value={field.state.value.map((opt: { value: string; label: string }, i: number) => ({
-                ...opt,
-                id: `opt-${i}`,
-              }))}
-              onChange={(options) => {
-                field.handleChange(options.map(({ id: _, ...rest }) => rest))
-                form.handleSubmit()
-              }}
-            />
-          )}
-        </form.Field>
-      </CollapsibleSection>
-
-      <Separator />
-
-      <CollapsibleSection title="Validation" defaultOpen>
-        <form.Field name="required">
-          {(field) => <SwitchProperty field={field} form={form} label="Required" />}
-        </form.Field>
-        <form.Field name="customErrorMessage">
-          {(field) => (
-            <StringProperty
-              field={field}
-              form={form}
-              label="Custom Error Message"
-              placeholder="e.g., Please select an option"
-              description="Shows when validation fails"
-            />
-          )}
-        </form.Field>
-      </CollapsibleSection>
-
-      <Separator />
-
-      <CollapsibleSection title="Behavior">
-        <form.Field name="allowClear">
-          {(field) => (
-            <SwitchProperty
-              field={field}
-              form={form}
-              label="Allow Clear"
-              description="Allow deselecting"
-            />
-          )}
-        </form.Field>
-        <form.Field name="searchable">
-          {(field) => (
-            <SwitchProperty
-              field={field}
-              form={form}
-              label="Searchable"
-              description="Enable filtering options"
-            />
-          )}
-        </form.Field>
-      </CollapsibleSection>
-
-      <Separator />
-
-      <CollapsibleSection title="Advanced">
-        <form.Field name="disabled">
-          {(field) => (
-            <SwitchProperty
-              field={field}
-              form={form}
-              label="Disabled"
-              description="Prevent user interaction"
-            />
-          )}
-        </form.Field>
-      </CollapsibleSection>
+      <BaseProperties
+        form={form}
+        children={
+          <>
+            <Separator />
+            <CollapsibleSection title="Options">
+              <form.Field name="options">
+                {(field) => (
+                  <OptionsEditor
+                    value={field.state.value.map(
+                      (opt: { value: string; label: string }, i: number) => ({
+                        ...opt,
+                        id: `opt-${i}`,
+                      }),
+                    )}
+                    onChange={(options) => {
+                      field.handleChange(options.map(({ id: _, ...rest }) => rest))
+                      form.handleSubmit()
+                    }}
+                  />
+                )}
+              </form.Field>
+            </CollapsibleSection>
+            <Separator />
+            <CollapsibleSection title="Behavior">
+              <form.Field name="allowClear">
+                {(field) => (
+                  <SwitchProperty
+                    field={field}
+                    form={form}
+                    label="Allow Clear"
+                    description="Allow deselecting"
+                  />
+                )}
+              </form.Field>
+              <form.Field name="searchable">
+                {(field) => (
+                  <SwitchProperty
+                    field={field}
+                    form={form}
+                    label="Searchable"
+                    description="Enable filtering options"
+                  />
+                )}
+              </form.Field>
+            </CollapsibleSection>
+          </>
+        }
+      />
     </Form>
   )
 }

@@ -1,21 +1,20 @@
-import { CalendarBlankIcon } from "@phosphor-icons/react"
+import { CalendarIcon } from "@phosphor-icons/react"
 
 import { Field, FieldError, FieldLabel, FieldDescription } from "#/components/ui/field"
 import { Form } from "#/components/ui/form"
 import { Input } from "#/components/ui/input"
-import { Separator } from "#/components/ui/separator"
 
 import { dateFieldAttributesSchema } from "../form-schemas"
 import type { ElementInstanceOf, FormElement, FormElementInstance } from "../form-types"
-import { CollapsibleSection } from "./collapsible-section"
-import { StringProperty, SwitchProperty } from "./property-fields"
+import { BaseProperties } from "./base-properties"
+import { DateProperty } from "./property-fields"
 import { useElementForm } from "./use-element-form"
 import { createDateFieldSchema } from "./validation"
 
 type DateFieldInstance = ElementInstanceOf<"DateField">
 
 const defaultAttributes: DateFieldInstance["extraAttributes"] = {
-  label: "Date field",
+  label: "Date Picker",
   helperText: "",
   required: false,
   minDate: undefined,
@@ -32,8 +31,8 @@ export const DateFieldFormElement: FormElement = {
     extraAttributes: defaultAttributes,
   }),
   designerButtonElement: {
-    icon: CalendarBlankIcon,
-    label: "Date",
+    icon: CalendarIcon,
+    label: "Date Picker",
   },
   designerComponent: DesignerComponent,
   formComponent: FormComponent,
@@ -50,8 +49,8 @@ function DesignerComponent({ elementInstance }: { elementInstance: FormElementIn
   const { extraAttributes } = elementInstance as DateFieldInstance
   return (
     <div className="flex w-full items-center gap-2 text-sm text-muted-foreground">
-      <CalendarBlankIcon className="size-4 shrink-0" />
-      <span className="truncate">{extraAttributes.label || "Date field"}</span>
+      <CalendarIcon className="size-4 shrink-0" />
+      <span className="truncate">{extraAttributes.label || "Date Picker"}</span>
     </div>
   )
 }
@@ -97,98 +96,26 @@ function PropertiesComponent({ elementInstance }: { elementInstance: FormElement
 
   return (
     <Form
-      className="space-y-2"
       onSubmit={(e) => {
         e.preventDefault()
         e.stopPropagation()
         form.handleSubmit()
       }}
     >
-      <CollapsibleSection title="Basic Settings" defaultOpen>
-        <form.Field name="label">
-          {(field) => <StringProperty field={field} form={form} label="Label" />}
-        </form.Field>
-        <form.Field name="helperText">
-          {(field) => (
-            <StringProperty
-              field={field}
-              form={form}
-              label="Helper Text"
-              description="Appears below the field"
-            />
-          )}
-        </form.Field>
-      </CollapsibleSection>
-
-      <Separator />
-
-      <CollapsibleSection title="Validation" defaultOpen>
-        <form.Field name="required">
-          {(field) => <SwitchProperty field={field} form={form} label="Required" />}
-        </form.Field>
-
-        <div className="grid grid-cols-2 gap-2">
-          <form.Field name="minDate">
-            {(field) => (
-              <Field name={field.name}>
-                <FieldLabel>Min Date</FieldLabel>
-                <Input
-                  type="date"
-                  value={(field.state.value as string) || ""}
-                  onBlur={() => {
-                    field.handleBlur()
-                    form.handleSubmit()
-                  }}
-                  onChange={(e) => field.handleChange(e.target.value || undefined)}
-                />
-              </Field>
-            )}
-          </form.Field>
-          <form.Field name="maxDate">
-            {(field) => (
-              <Field name={field.name}>
-                <FieldLabel>Max Date</FieldLabel>
-                <Input
-                  type="date"
-                  value={(field.state.value as string) || ""}
-                  onBlur={() => {
-                    field.handleBlur()
-                    form.handleSubmit()
-                  }}
-                  onChange={(e) => field.handleChange(e.target.value || undefined)}
-                />
-              </Field>
-            )}
-          </form.Field>
-        </div>
-
-        <form.Field name="customErrorMessage">
-          {(field) => (
-            <StringProperty
-              field={field}
-              form={form}
-              label="Custom Error Message"
-              placeholder="e.g., Please select a valid date"
-              description="Shows when validation fails"
-            />
-          )}
-        </form.Field>
-      </CollapsibleSection>
-
-      <Separator />
-
-      <CollapsibleSection title="Advanced">
-        <form.Field name="disabled">
-          {(field) => (
-            <SwitchProperty
-              field={field}
-              form={form}
-              label="Disabled"
-              description="Prevent user interaction"
-            />
-          )}
-        </form.Field>
-      </CollapsibleSection>
+      <BaseProperties
+        form={form}
+        hasPlaceholder={false}
+        extraValidationSettings={
+          <div className="grid grid-cols-2 gap-2">
+            <form.Field name="minDate">
+              {(field) => <DateProperty field={field} form={form} label="Min Date" />}
+            </form.Field>
+            <form.Field name="maxDate">
+              {(field) => <DateProperty field={field} form={form} label="Max Date" />}
+            </form.Field>
+          </div>
+        }
+      />
     </Form>
   )
 }

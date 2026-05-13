@@ -1,27 +1,17 @@
-import { TextHOneIcon } from "@phosphor-icons/react"
+import { TextHIcon } from "@phosphor-icons/react"
 
-import { Field, FieldLabel, FieldDescription } from "#/components/ui/field"
 import { Form } from "#/components/ui/form"
-import { Input } from "#/components/ui/input"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "#/components/ui/select"
-import { Separator } from "#/components/ui/separator"
 
 import { titleFieldAttributesSchema } from "../form-schemas"
 import type { ElementInstanceOf, FormElement, FormElementInstance } from "../form-types"
 import { CollapsibleSection } from "./collapsible-section"
-import { StringProperty } from "./property-fields"
+import { SelectProperty, StringProperty } from "./property-fields"
 import { useElementForm } from "./use-element-form"
 
 type TitleFieldInstance = ElementInstanceOf<"TitleField">
 
 const defaultAttributes: TitleFieldInstance["extraAttributes"] = {
-  title: "Title field",
+  title: "Heading",
   fontSize: "md",
   fontWeight: "bold",
   alignment: "left",
@@ -36,8 +26,8 @@ export const TitleFieldFormElement: FormElement = {
     extraAttributes: defaultAttributes,
   }),
   designerButtonElement: {
-    icon: TextHOneIcon,
-    label: "Title field",
+    icon: TextHIcon,
+    label: "Heading",
   },
   designerComponent: DesignerComponent,
   formComponent: FormComponent,
@@ -68,8 +58,8 @@ function DesignerComponent({ elementInstance }: { elementInstance: FormElementIn
   const { extraAttributes } = elementInstance as TitleFieldInstance
   return (
     <div className="flex w-full items-center gap-2 text-sm text-muted-foreground">
-      <TextHOneIcon className="size-4 shrink-0" />
-      <span className="truncate">{extraAttributes.title || "Title field"}</span>
+      <TextHIcon className="size-4 shrink-0" />
+      <span className="truncate">{extraAttributes.title || "Heading"}</span>
     </div>
   )
 }
@@ -92,112 +82,75 @@ function PropertiesComponent({ elementInstance }: { elementInstance: FormElement
 
   return (
     <Form
-      className="space-y-2"
       onSubmit={(e) => {
         e.preventDefault()
         e.stopPropagation()
         form.handleSubmit()
       }}
     >
-      <CollapsibleSection title="Content" defaultOpen>
+      <CollapsibleSection title="Content">
         <form.Field name="title">
           {(field) => <StringProperty field={field} form={form} label="Title" />}
         </form.Field>
       </CollapsibleSection>
 
-      <Separator />
-
-      <CollapsibleSection title="Typography" defaultOpen>
+      <CollapsibleSection title="Typography">
         <div className="grid grid-cols-2 gap-2">
           <form.Field name="fontSize">
             {(field) => (
-              <Field name={field.name}>
-                <FieldLabel>Font Size</FieldLabel>
-                <Select
-                  value={field.state.value as string}
-                  onValueChange={(value) => {
-                    field.handleChange(value as "sm" | "md" | "lg" | "xl")
-                    form.handleSubmit()
-                  }}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="sm">Small</SelectItem>
-                    <SelectItem value="md">Medium</SelectItem>
-                    <SelectItem value="lg">Large</SelectItem>
-                    <SelectItem value="xl">Extra Large</SelectItem>
-                  </SelectContent>
-                </Select>
-              </Field>
+              <SelectProperty
+                field={field}
+                form={form}
+                label="Font Size"
+                options={[
+                  { value: "sm", label: "Small" },
+                  { value: "md", label: "Medium" },
+                  { value: "lg", label: "Large" },
+                  { value: "xl", label: "Extra Large" },
+                ]}
+              />
             )}
           </form.Field>
           <form.Field name="fontWeight">
             {(field) => (
-              <Field name={field.name}>
-                <FieldLabel>Font Weight</FieldLabel>
-                <Select
-                  value={field.state.value as string}
-                  onValueChange={(value) => {
-                    field.handleChange(value as "normal" | "medium" | "bold")
-                    form.handleSubmit()
-                  }}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="normal">Normal</SelectItem>
-                    <SelectItem value="medium">Medium</SelectItem>
-                    <SelectItem value="bold">Bold</SelectItem>
-                  </SelectContent>
-                </Select>
-              </Field>
+              <SelectProperty
+                field={field}
+                form={form}
+                label="Font Weight"
+                options={[
+                  { value: "normal", label: "Normal" },
+                  { value: "medium", label: "Medium" },
+                  { value: "bold", label: "Bold" },
+                ]}
+              />
             )}
           </form.Field>
         </div>
 
         <form.Field name="alignment">
           {(field) => (
-            <Field name={field.name}>
-              <FieldLabel>Alignment</FieldLabel>
-              <Select
-                value={field.state.value as string}
-                onValueChange={(value) => {
-                  field.handleChange(value as "left" | "center" | "right")
-                  form.handleSubmit()
-                }}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="left">Left</SelectItem>
-                  <SelectItem value="center">Center</SelectItem>
-                  <SelectItem value="right">Right</SelectItem>
-                </SelectContent>
-              </Select>
-            </Field>
+            <SelectProperty
+              field={field}
+              form={form}
+              label="Alignment"
+              options={[
+                { value: "left", label: "Left" },
+                { value: "center", label: "Center" },
+                { value: "right", label: "Right" },
+              ]}
+            />
           )}
         </form.Field>
 
         <form.Field name="color">
           {(field) => (
-            <Field name={field.name}>
-              <FieldLabel>Color</FieldLabel>
-              <Input
-                type="text"
-                value={(field.state.value as string) || ""}
-                onBlur={() => {
-                  field.handleBlur()
-                  form.handleSubmit()
-                }}
-                onChange={(e) => field.handleChange(e.target.value || undefined)}
-                placeholder="#000000 or red"
-              />
-              <FieldDescription>Hex color or named color</FieldDescription>
-            </Field>
+            <StringProperty
+              field={field}
+              form={form}
+              label="Color"
+              placeholder="#000000 or red"
+              description="Hex color or named color"
+            />
           )}
         </form.Field>
       </CollapsibleSection>
