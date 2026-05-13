@@ -6,7 +6,6 @@ import { Designer } from "#/components/builder/designer/canvas"
 import { DragOverlayWrapper } from "#/components/builder/designer/overlay"
 import { designerStoreActions } from "#/components/builder/designer/store"
 import { parseFormContent } from "#/components/builder/form-utils"
-import { FormBuilderPreviewPanel } from "#/components/builder/preview-panel"
 import { Spinner } from "#/components/ui/spinner"
 import type { Form } from "#/generated/prisma/client"
 
@@ -61,32 +60,10 @@ export default function FormBuilder({ form }: { form: Form }) {
         }),
       ]}
     >
-      <main className="flex h-dvh w-full flex-col">
-        <BuilderNav name={form.name} />
-        <div className="relative flex h-50 w-full grow items-center justify-center overflow-hidden">
-          <div className="flex h-full w-full">
-            <div className="min-w-0 basis-[45%]">
-              <Designer />
-            </div>
-            <aside className="hidden h-full basis-[55%] lg:block">
-              <FormBuilderPreviewPanel />
-            </aside>
-          </div>
-        </div>
+      <main className="flex h-dvh w-full flex-col overflow-hidden">
+        <Designer formName={form.name} />
       </main>
       <DragOverlayWrapper />
     </DragDropProvider>
-  )
-}
-
-function BuilderNav({ name }: { name: string }) {
-  return (
-    <nav className="flex items-center justify-between gap-3 border-b-2 p-4">
-      <h2 className="truncate font-medium">
-        <span className="mr-2 text-muted-foreground">Form:</span>
-        {name}
-      </h2>
-      {/* Optional preview button */}
-    </nav>
   )
 }

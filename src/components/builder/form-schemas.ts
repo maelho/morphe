@@ -53,8 +53,8 @@ const numberValidationSchema = z.object({
 })
 
 const dateValidationSchema = z.object({
-  minDate: z.iso.date().optional(),
-  maxDate: z.iso.date().optional(),
+  minDate: z.string().optional(),
+  maxDate: z.string().optional(),
 })
 
 export const selectOptionSchema = z.object({
