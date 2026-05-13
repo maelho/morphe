@@ -1,13 +1,9 @@
 import { useDraggable, useDroppable } from "@dnd-kit/react"
-import { useMemo, type RefObject } from "react"
+import { useMemo } from "react"
 
 import type { ElementsType } from "../form-types"
 
-export function useElementDragDrop(
-  elementId: string,
-  type?: ElementsType,
-  handleRef?: RefObject<HTMLElement | null>,
-) {
+export function useElementDragDrop(elementId: string, type?: ElementsType, disabled?: boolean) {
   const topDroppableConfig = useMemo(
     () => ({
       id: `designer-element-${elementId}-top-half`,
@@ -38,9 +34,9 @@ export function useElementDragDrop(
     () => ({
       id: `designer-element-${elementId}-drag-handler`,
       data: { type, elementId, isDesignerElement: true },
-      handle: handleRef,
+      disabled,
     }),
-    [elementId, type, handleRef],
+    [elementId, type, disabled],
   )
 
   const { ref: topRef, isDropTarget: topIsOver } = useDroppable(topDroppableConfig)

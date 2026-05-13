@@ -2,7 +2,7 @@ import { DragOverlay } from "@dnd-kit/react"
 
 import { FormElements } from "../fields/registry"
 import type { ElementsType } from "../form-types"
-import { ElementButton } from "./sidebar/element-button"
+import { ElementButton } from "./element-button"
 import { useDesignerElement } from "./store"
 
 export function DragOverlayWrapper() {
@@ -22,7 +22,7 @@ function OverlayContent({ source }: { source: { data?: Record<string, unknown> }
     if (!element) return <div>Element not found</div>
     const DesignerElement = FormElements[element.type].designerComponent
     return (
-      <div className="pointer-events-none flex h-12 w-full items-center rounded-md border bg-accent px-3 opacity-80">
+      <div className="pointer-events-none flex min-h-12 w-full items-center rounded-lg border border-border/70 bg-background/90 px-3 opacity-80 shadow-sm/10">
         <DesignerElement elementInstance={element} />
       </div>
     )
