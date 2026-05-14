@@ -79,7 +79,6 @@ export function PatternSelect({
       {isCustom && (
         <div className="relative">
           <Input
-            autoFocus
             placeholder="e.g. ^[A-Z]{2,4}$"
             value={customValue}
             onChange={(e) => handleCustomPatternChange(e.target.value)}

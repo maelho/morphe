@@ -52,14 +52,13 @@ function PropertiesComponent({ elementInstance }: { elementInstance: FormElement
 
   return (
     <Form
-      className="space-y-2"
       onSubmit={(e) => {
         e.preventDefault()
         e.stopPropagation()
         form.handleSubmit()
       }}
     >
-      <CollapsibleSection title="Size" defaultOpen>
+      <CollapsibleSection title="Size">
         <form.Field name="height">
           {(field) => (
             <NumberProperty

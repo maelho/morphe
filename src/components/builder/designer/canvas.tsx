@@ -1,15 +1,15 @@
-// oxlint-disable jsx-a11y/no-static-element-interactions
-// oxlint-disable jsx-a11y/click-events-have-key-events
 import { useDroppable } from "@dnd-kit/react"
 
+import { Sidebar, SidebarInset, SidebarProvider } from "#/components/ui/sidebar"
 import { cn } from "#/lib/utils"
 
-import { DesignerElementWrapper } from "./element-wrapper"
+import { DropAreaContent } from "./drop-area"
+import { DesignerInspector } from "./inspector"
 import { DesignerSidebar } from "./sidebar/shell"
 import { designerStoreActions, useDesignerElements } from "./store"
 import { useDesignerDragDrop } from "./use-drag-drop"
 
-export function Designer() {
+export function Designer({ formName }: { formName: string }) {
   const elementOrder = useDesignerElements()
   useDesignerDragDrop()
 
@@ -18,49 +18,35 @@ export function Designer() {
     data: { isDesignerDropArea: true },
   })
 
-  return (
-    <div className="relative flex h-full w-full min-w-0">
-      <DesignerSidebar />
-      <div className="min-w-0 flex-1 p-4">
-        <div
-          ref={ref}
-          className={cn(
-            "m-auto flex h-full max-w-230 flex-1 grow flex-col items-center justify-start overflow-y-auto rounded-xl bg-background",
-            isDropTarget && "ring-2 ring-purple-200",
-          )}
-          onClick={() => designerStoreActions.setSelectedElement(null)}
-        >
-          <DropAreaContent elementOrder={elementOrder} isDropTarget={isDropTarget} />
-        </div>
-      </div>
-    </div>
-  )
-}
+  const handleDeselect = () => {
+    designerStoreActions.setSelectedElement(null)
+    designerStoreActions.closeProperties()
+  }
 
-function DropAreaContent({
-  elementOrder,
-  isDropTarget,
-}: {
-  elementOrder: string[]
-  isDropTarget: boolean
-}) {
-  if (elementOrder.length === 0 && !isDropTarget) {
-    return (
-      <p className="flex grow items-center text-3xl font-bold text-muted-foreground">Drop here</p>
-    )
-  }
-  if (elementOrder.length === 0 && isDropTarget) {
-    return (
-      <div className="w-full p-4">
-        <div className="h-30 rounded-md bg-purple-200" />
-      </div>
-    )
-  }
   return (
-    <div className="flex w-full flex-col gap-2 p-4">
-      {elementOrder.map((elementId) => (
-        <DesignerElementWrapper key={elementId} elementId={elementId} />
-      ))}
-    </div>
+    <SidebarProvider defaultOpen>
+      <Sidebar collapsible="icon" variant="inset">
+        <DesignerSidebar formName={formName} />
+      </Sidebar>
+      <SidebarInset className="bg-background">
+        <div className="flex h-full w-full min-w-0 flex-col overflow-hidden">
+          <div className="relative h-full w-full grow overflow-y-auto p-4 md:p-8">
+            <div
+              ref={ref}
+              role="presentation"
+              className={cn(
+                "m-auto flex min-h-full w-full max-w-xl flex-1 grow flex-col items-center justify-start rounded-2xl border border-border/70 bg-card/80 p-8 shadow-xs/5 transition-all duration-300",
+                isDropTarget && "border-foreground/30 bg-card/90",
+              )}
+              onClick={handleDeselect}
+              onKeyDown={(e) => e.key === "Escape" && handleDeselect()}
+            >
+              <DropAreaContent elementOrder={elementOrder} isDropTarget={isDropTarget} />
+            </div>
+          </div>
+        </div>
+      </SidebarInset>
+      <DesignerInspector />
+    </SidebarProvider>
   )
 }

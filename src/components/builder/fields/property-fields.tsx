@@ -30,6 +30,18 @@ interface BaseProps {
   description?: string
 }
 
+function Description({ text }: { text?: string }) {
+  if (!text) return null
+  return <FieldDescription>{text}</FieldDescription>
+}
+
+function submitOnBlur(field: FieldLike, form: FormLike) {
+  return () => {
+    field.handleBlur()
+    form.handleSubmit()
+  }
+}
+
 export function StringProperty({
   field,
   form,
@@ -42,14 +54,11 @@ export function StringProperty({
       <FieldLabel>{label}</FieldLabel>
       <Input
         value={(field.state.value as string) ?? ""}
-        onBlur={() => {
-          field.handleBlur()
-          form.handleSubmit()
-        }}
-        onChange={(e) => field.handleChange(e.target.value)}
         placeholder={placeholder}
+        onBlur={submitOnBlur(field, form)}
+        onChange={(e) => field.handleChange(e.target.value)}
       />
-      {description && <FieldDescription>{description}</FieldDescription>}
+      <Description text={description} />
     </Field>
   )
 }
@@ -68,18 +77,15 @@ export function NumberProperty({
       <Input
         type="number"
         value={(field.state.value as number | null | undefined) ?? ""}
-        onBlur={() => {
-          field.handleBlur()
-          form.handleSubmit()
-        }}
+        min={min}
+        max={max}
+        onBlur={submitOnBlur(field, form)}
         onChange={(e) => {
           const val = e.target.value
           field.handleChange(val === "" ? undefined : Number(val))
         }}
-        min={min}
-        max={max}
       />
-      {description && <FieldDescription>{description}</FieldDescription>}
+      <Description text={description} />
     </Field>
   )
 }
@@ -93,11 +99,12 @@ export function SwitchProperty({ field, form, label, description }: BaseProps): 
           checked={!!field.state.value}
           onCheckedChange={(checked) => {
             field.handleChange(checked)
+            field.handleBlur()
             form.handleSubmit()
           }}
         />
       </div>
-      {description && <FieldDescription>{description}</FieldDescription>}
+      <Description text={description} />
     </Field>
   )
 }
@@ -135,7 +142,7 @@ export function SelectProperty({
           ))}
         </SelectContent>
       </Select>
-      {description && <FieldDescription>{description}</FieldDescription>}
+      <Description text={description} />
     </Field>
   )
 }
@@ -152,14 +159,26 @@ export function TextareaProperty({
       <FieldLabel>{label}</FieldLabel>
       <Textarea
         value={(field.state.value as string) ?? ""}
-        onBlur={() => {
-          field.handleBlur()
-          form.handleSubmit()
-        }}
-        onChange={(e) => field.handleChange(e.target.value)}
         rows={rows}
+        onBlur={submitOnBlur(field, form)}
+        onChange={(e) => field.handleChange(e.target.value)}
       />
-      {description && <FieldDescription>{description}</FieldDescription>}
+      <Description text={description} />
+    </Field>
+  )
+}
+
+export function DateProperty({ field, form, label, description }: BaseProps): ReactNode {
+  return (
+    <Field name={field.name}>
+      <FieldLabel>{label}</FieldLabel>
+      <Input
+        type="date"
+        value={(field.state.value as string) || ""}
+        onBlur={submitOnBlur(field, form)}
+        onChange={(e) => field.handleChange(e.target.value || undefined)}
+      />
+      <Description text={description} />
     </Field>
   )
 }

@@ -28,3 +28,20 @@ export const FormElements: FormElementsType = {
   SeparatorField: SeparatorFieldFormElement,
   SpacerField: SpacerFieldFormElement,
 }
+
+export const layoutElements: ElementsType[] = [
+  "TitleField",
+  "SubtitleField",
+  "ParagraphField",
+  "SeparatorField",
+  "SpacerField",
+]
+
+export const inputElements: ElementsType[] = [
+  "TextField",
+  "TextareaField",
+  "NumberField",
+  "DateField",
+  "CheckboxField",
+  "SelectField",
+]

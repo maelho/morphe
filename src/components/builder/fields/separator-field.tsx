@@ -1,21 +1,12 @@
 import { MinusIcon } from "@phosphor-icons/react"
 
-import { Field, FieldLabel, FieldDescription } from "#/components/ui/field"
 import { Form } from "#/components/ui/form"
-import { Input } from "#/components/ui/input"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "#/components/ui/select"
 import { Separator } from "#/components/ui/separator"
 
 import { separatorFieldAttributesSchema } from "../form-schemas"
 import type { ElementInstanceOf, FormElement, FormElementInstance } from "../form-types"
 import { CollapsibleSection } from "./collapsible-section"
-import { NumberProperty } from "./property-fields"
+import { NumberProperty, SelectProperty, StringProperty } from "./property-fields"
 import { useElementForm } from "./use-element-form"
 
 type SeparatorFieldInstance = ElementInstanceOf<"SeparatorField">
@@ -29,13 +20,13 @@ const defaultAttributes: SeparatorFieldInstance["extraAttributes"] = {
 export const SeparatorFieldFormElement: FormElement = {
   type: "SeparatorField",
   construct: (id: string) => ({
-    id: id,
+    id,
     type: "SeparatorField",
     extraAttributes: defaultAttributes,
   }),
   designerButtonElement: {
     icon: MinusIcon,
-    label: "Separator",
+    label: "Divider",
   },
   designerComponent: DesignerComponent,
   formComponent: FormComponent,
@@ -53,7 +44,7 @@ function DesignerComponent(_elementInstance: { elementInstance: FormElementInsta
   return (
     <div className="flex w-full items-center gap-2 text-sm text-muted-foreground">
       <MinusIcon className="size-4 shrink-0" />
-      <span>Separator</span>
+      <span>Divider</span>
     </div>
   )
 }
@@ -77,14 +68,13 @@ function PropertiesComponent({ elementInstance }: { elementInstance: FormElement
 
   return (
     <Form
-      className="space-y-2"
       onSubmit={(e) => {
         e.preventDefault()
         e.stopPropagation()
         form.handleSubmit()
       }}
     >
-      <CollapsibleSection title="Appearance" defaultOpen>
+      <CollapsibleSection title="Appearance">
         <form.Field name="thickness">
           {(field) => (
             <NumberProperty field={field} form={form} label="Thickness (px)" min={1} max={20} />
@@ -93,44 +83,28 @@ function PropertiesComponent({ elementInstance }: { elementInstance: FormElement
 
         <form.Field name="style">
           {(field) => (
-            <Field name={field.name}>
-              <FieldLabel>Style</FieldLabel>
-              <Select
-                value={field.state.value as string}
-                onValueChange={(value) => {
-                  field.handleChange(value as "solid" | "dashed" | "dotted")
-                  form.handleSubmit()
-                }}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="solid">Solid</SelectItem>
-                  <SelectItem value="dashed">Dashed</SelectItem>
-                  <SelectItem value="dotted">Dotted</SelectItem>
-                </SelectContent>
-              </Select>
-            </Field>
+            <SelectProperty
+              field={field}
+              form={form}
+              label="Style"
+              options={[
+                { value: "solid", label: "Solid" },
+                { value: "dashed", label: "Dashed" },
+                { value: "dotted", label: "Dotted" },
+              ]}
+            />
           )}
         </form.Field>
 
         <form.Field name="color">
           {(field) => (
-            <Field name={field.name}>
-              <FieldLabel>Color</FieldLabel>
-              <Input
-                type="text"
-                value={(field.state.value as string) || ""}
-                onBlur={() => {
-                  field.handleBlur()
-                  form.handleSubmit()
-                }}
-                onChange={(e) => field.handleChange(e.target.value || undefined)}
-                placeholder="#000000 or muted"
-              />
-              <FieldDescription>Hex color or named color</FieldDescription>
-            </Field>
+            <StringProperty
+              field={field}
+              form={form}
+              label="Color"
+              placeholder="#000000 or muted"
+              description="Hex color or named color"
+            />
           )}
         </form.Field>
       </CollapsibleSection>
