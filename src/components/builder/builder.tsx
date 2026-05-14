@@ -3,7 +3,7 @@ import { DragDropProvider } from "@dnd-kit/react"
 import { useEffect, useRef, useState } from "react"
 
 import { Designer } from "#/components/builder/designer/canvas"
-// import { DragOverlayWrapper } from "#/components/builder/designer/overlay"
+import { DragOverlayWrapper } from "#/components/builder/designer/overlay"
 import { designerStoreActions, designerStoreFormActions } from "#/components/builder/designer/store"
 import { parseFormContent } from "#/components/builder/form-utils"
 import { Spinner } from "#/components/ui/spinner"
@@ -66,7 +66,7 @@ export default function FormBuilder({ form }: { form: Form }) {
       <div className="flex flex-1 flex-col overflow-hidden">
         <Designer />
       </div>
-      {/*<DragOverlayWrapper />*/}
+      <DragOverlayWrapper />
     </DragDropProvider>
   )
 }
