@@ -8,6 +8,8 @@ export type DesignerStore = {
   order: string[]
   selectedElementId: string | null
   editingElementId: string | null
+  formId: string | null
+  formName: string | null
 }
 
 export const designerStore = new Store<DesignerStore>({
@@ -15,6 +17,8 @@ export const designerStore = new Store<DesignerStore>({
   order: [],
   selectedElementId: null,
   editingElementId: null,
+  formId: null,
+  formName: null,
 })
 
 function clampToExisting(
@@ -156,4 +160,18 @@ export function useEditingElement() {
 
 export function useEditingElementId() {
   return useSelector(designerStore, (s) => s.editingElementId)
+}
+
+export function useFormInfo() {
+  return useSelector(designerStore, (s) => ({ formId: s.formId, formName: s.formName }))
+}
+
+export const designerStoreFormActions = {
+  setFormInfo(formId: string, formName: string) {
+    designerStore.setState((state) => ({ ...state, formId, formName }))
+  },
+
+  clearFormInfo() {
+    designerStore.setState((state) => ({ ...state, formId: null, formName: null }))
+  },
 }

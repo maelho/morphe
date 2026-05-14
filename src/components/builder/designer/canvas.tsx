@@ -4,6 +4,7 @@ import { cn } from "#/lib/utils"
 
 import { DropAreaContent } from "./drop-area"
 import { DesignerSidebar } from "./sidebar/shell"
+import { PropertiesSidebar } from "./sidebar/properties-sidebar"
 import { designerStoreActions, useDesignerElements } from "./store"
 import { useDesignerDragDrop } from "./use-drag-drop"
 
@@ -22,7 +23,11 @@ export function Designer() {
   }
 
   return (
-    <div className="flex flex-1 overflow-hidden">
+    <div className="flex flex-1 w-full overflow-hidden">
+      <aside className="w-64 shrink-0 overflow-y-auto border-r border-border bg-background">
+        <DesignerSidebar />
+      </aside>
+
       <div
         role="presentation"
         onClick={handleDeselect}
@@ -40,8 +45,8 @@ export function Designer() {
         </div>
       </div>
 
-      <aside className="w-70 shrink-0 overflow-y-auto border-l border-border bg-background">
-        <DesignerSidebar />
+      <aside className="w-72 shrink-0 overflow-y-auto border-l border-border bg-background">
+        <PropertiesSidebar />
       </aside>
     </div>
   )

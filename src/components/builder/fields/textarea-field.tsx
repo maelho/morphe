@@ -36,7 +36,7 @@ export const TextareaFieldFormElement: FormElement = {
   }),
   designerButtonElement: {
     icon: TextIndentIcon,
-    label: "Long Text",
+    label: "Textarea",
   },
   designerComponent: DesignerComponent,
   formComponent: FormComponent,
@@ -56,7 +56,7 @@ function DesignerComponent({ elementInstance }: { elementInstance: FormElementIn
         {extraAttributes.label || "Long Text"}
         {extraAttributes.required && <span className="ml-1 text-destructive">*</span>}
       </span>
-      <div className="flex min-h-[64px] w-full items-start rounded-lg border border-border bg-muted/40 px-3 py-2">
+      <div className="flex min-h-16 w-full items-start rounded-lg border border-border bg-muted/40 px-3 py-2">
         <span className="truncate text-sm text-muted-foreground/60">
           {extraAttributes.placeholder || "Write your answer…"}
         </span>

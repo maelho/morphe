@@ -1,15 +1,12 @@
-// oxlint-disable react/no-children-prop
 import { CaretDownIcon, ListIcon } from "@phosphor-icons/react"
 
 import { Field, FieldDescription, FieldError, FieldLabel } from "#/components/ui/field"
 import { Form } from "#/components/ui/form"
 import { Select, SelectItem, SelectPopup, SelectTrigger, SelectValue } from "#/components/ui/select"
-import { Separator } from "#/components/ui/separator"
 
 import { selectFieldAttributesSchema } from "../form-schemas"
 import type { ElementInstanceOf, FormElement, FormElementInstance } from "../form-types"
 import { BaseProperties } from "./base-properties"
-import { CollapsibleSection } from "./collapsible-section"
 import { OptionsEditor } from "./options-editor"
 import { SwitchProperty } from "./property-fields"
 import { useElementForm } from "./use-element-form"
@@ -44,7 +41,7 @@ export const SelectFieldFormElement: FormElement = {
   }),
   designerButtonElement: {
     icon: ListIcon,
-    label: "Dropdown",
+    label: "Select",
   },
   designerComponent: DesignerComponent,
   formComponent: FormComponent,
@@ -133,55 +130,44 @@ function PropertiesComponent({ elementInstance }: { elementInstance: FormElement
         form.handleSubmit()
       }}
     >
-      <BaseProperties
-        form={form}
-        children={
-          <>
-            <Separator />
-            <CollapsibleSection title="Options">
-              <form.Field name="options">
-                {(field) => (
-                  <OptionsEditor
-                    value={field.state.value.map(
-                      (opt: { value: string; label: string }, i: number) => ({
-                        ...opt,
-                        id: `opt-${i}`,
-                      }),
-                    )}
-                    onChange={(options) => {
-                      field.handleChange(options.map(({ id: _, ...rest }) => rest))
-                      form.handleSubmit()
-                    }}
-                  />
-                )}
-              </form.Field>
-            </CollapsibleSection>
-            <Separator />
-            <CollapsibleSection title="Behavior">
-              <form.Field name="allowClear">
-                {(field) => (
-                  <SwitchProperty
-                    field={field}
-                    form={form}
-                    label="Allow Clear"
-                    description="Allow deselecting"
-                  />
-                )}
-              </form.Field>
-              <form.Field name="searchable">
-                {(field) => (
-                  <SwitchProperty
-                    field={field}
-                    form={form}
-                    label="Searchable"
-                    description="Enable filtering options"
-                  />
-                )}
-              </form.Field>
-            </CollapsibleSection>
-          </>
-        }
-      />
+      <BaseProperties form={form}>
+        <form.Field name="options">
+          {(field) => (
+            <OptionsEditor
+              value={field.state.value.map(
+                (opt: { value: string; label: string }, i: number) => ({
+                  ...opt,
+                  id: `opt-${i}`,
+                }),
+              )}
+              onChange={(options) => {
+                field.handleChange(options.map(({ id: _, ...rest }) => rest))
+                form.handleSubmit()
+              }}
+            />
+          )}
+        </form.Field>
+        <form.Field name="allowClear">
+          {(field) => (
+            <SwitchProperty
+              field={field}
+              form={form}
+              label="Allow Clear"
+              description="Allow deselecting"
+            />
+          )}
+        </form.Field>
+        <form.Field name="searchable">
+          {(field) => (
+            <SwitchProperty
+              field={field}
+              form={form}
+              label="Searchable"
+              description="Enable filtering options"
+            />
+          )}
+        </form.Field>
+      </BaseProperties>
     </Form>
   )
 }

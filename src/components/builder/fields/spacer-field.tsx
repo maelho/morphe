@@ -4,7 +4,6 @@ import { Form } from "#/components/ui/form"
 
 import { spacerFieldAttributesSchema } from "../form-schemas"
 import type { ElementInstanceOf, FormElement, FormElementInstance } from "../form-types"
-import { CollapsibleSection } from "./collapsible-section"
 import { NumberProperty } from "./property-fields"
 import { useElementForm } from "./use-element-form"
 
@@ -65,20 +64,23 @@ function PropertiesComponent({ elementInstance }: { elementInstance: FormElement
         form.handleSubmit()
       }}
     >
-      <CollapsibleSection title="Size">
-        <form.Field name="height">
-          {(field) => (
-            <NumberProperty
-              field={field}
-              form={form}
-              label="Height (px)"
-              min={4}
-              max={200}
-              description="Space height in pixels (4-200)"
-            />
-          )}
-        </form.Field>
-      </CollapsibleSection>
+      <div className="flex min-h-0 flex-col">
+        <div className="space-y-4">
+          <form.Field name="height">
+            {(field) => (
+              <NumberProperty
+                field={field}
+                form={form}
+                label="Height (px)"
+                min={4}
+                max={200}
+                defaultValue={24}
+                description="Space height in pixels (4-200)"
+              />
+            )}
+          </form.Field>
+        </div>
+      </div>
     </Form>
   )
 }

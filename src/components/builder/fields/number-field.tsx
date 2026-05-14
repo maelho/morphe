@@ -2,7 +2,13 @@ import { HashIcon } from "@phosphor-icons/react"
 
 import { Field, FieldError, FieldLabel, FieldDescription } from "#/components/ui/field"
 import { Form } from "#/components/ui/form"
-import { Input } from "#/components/ui/input"
+import {
+  NumberField,
+  NumberFieldDecrement,
+  NumberFieldGroup,
+  NumberFieldIncrement,
+  NumberFieldInput,
+} from "#/components/ui/number-field"
 
 import { numberFieldAttributesSchema } from "../form-schemas"
 import type { ElementInstanceOf, FormElement, FormElementInstance } from "../form-types"
@@ -55,12 +61,21 @@ function DesignerComponent({ elementInstance }: { elementInstance: FormElementIn
         {extraAttributes.label || "Number"}
         {extraAttributes.required && <span className="ml-1 text-destructive">*</span>}
       </span>
-      <div className="flex h-9 w-full items-center justify-between rounded-lg border border-border bg-muted/40 px-3">
-        <span className="text-sm text-muted-foreground/60">
-          {extraAttributes.placeholder || "0"}
-        </span>
-        <HashIcon className="size-3.5 text-muted-foreground/40" />
-      </div>
+      <NumberField
+        min={extraAttributes.min}
+        max={extraAttributes.max}
+        step={extraAttributes.step}
+        disabled={extraAttributes.disabled}
+      >
+        <NumberFieldGroup>
+          <NumberFieldDecrement />
+          <NumberFieldInput
+            placeholder={extraAttributes.placeholder}
+            className="text-sm text-muted-foreground/60"
+          />
+          <NumberFieldIncrement />
+        </NumberFieldGroup>
+      </NumberField>
       {extraAttributes.helperText && (
         <span className="text-xs text-muted-foreground">{extraAttributes.helperText}</span>
       )}
@@ -78,6 +93,7 @@ function FormComponent({
   defaultValue?: string
 }) {
   const { extraAttributes } = elementInstance as NumberFieldInstance
+  const parsedDefault = defaultValue ? parseFloat(defaultValue) : undefined
 
   return (
     <Field>
@@ -85,16 +101,19 @@ function FormComponent({
         {extraAttributes.label}
         {extraAttributes.required && <span className="ml-1 text-destructive">*</span>}
       </FieldLabel>
-      <Input
-        type="number"
-        placeholder={extraAttributes.placeholder}
-        defaultValue={defaultValue}
-        aria-invalid={isInvalid}
-        disabled={extraAttributes.disabled}
+      <NumberField
+        defaultValue={parsedDefault}
         min={extraAttributes.min}
         max={extraAttributes.max}
         step={extraAttributes.step}
-      />
+        disabled={extraAttributes.disabled}
+      >
+        <NumberFieldGroup>
+          <NumberFieldDecrement />
+          <NumberFieldInput placeholder={extraAttributes.placeholder} />
+          <NumberFieldIncrement />
+        </NumberFieldGroup>
+      </NumberField>
       {extraAttributes.helperText && (
         <FieldDescription>{extraAttributes.helperText}</FieldDescription>
       )}

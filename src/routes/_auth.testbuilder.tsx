@@ -31,9 +31,5 @@ const mockForm: Form = {
 }
 
 function RouteComponent() {
-  return (
-    <div className="h-dv">
-      <FormBuilder form={mockForm} />
-    </div>
-  )
+  return <FormBuilder form={mockForm} />
 }

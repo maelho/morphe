@@ -3,8 +3,8 @@ import { DragDropProvider } from "@dnd-kit/react"
 import { useEffect, useRef, useState } from "react"
 
 import { Designer } from "#/components/builder/designer/canvas"
-import { DragOverlayWrapper } from "#/components/builder/designer/overlay"
-import { designerStoreActions } from "#/components/builder/designer/store"
+// import { DragOverlayWrapper } from "#/components/builder/designer/overlay"
+import { designerStoreActions, designerStoreFormActions } from "#/components/builder/designer/store"
 import { parseFormContent } from "#/components/builder/form-utils"
 import { Spinner } from "#/components/ui/spinner"
 import type { Form } from "#/generated/prisma/client"
@@ -15,6 +15,8 @@ export default function FormBuilder({ form }: { form: Form }) {
 
   useEffect(() => {
     mountedRef.current = true
+
+    designerStoreFormActions.setFormInfo(form.id, form.name)
 
     designerStoreActions.setSelectedElement(null)
     try {
@@ -29,6 +31,7 @@ export default function FormBuilder({ form }: { form: Form }) {
     return () => {
       mountedRef.current = false
       designerStoreActions.clearElements()
+      designerStoreFormActions.clearFormInfo()
     }
   }, [form])
 
@@ -60,10 +63,10 @@ export default function FormBuilder({ form }: { form: Form }) {
         }),
       ]}
     >
-      <main className="flex h-dvh w-full flex-col overflow-hidden">
+      <div className="flex flex-1 flex-col overflow-hidden">
         <Designer />
-      </main>
-      <DragOverlayWrapper />
+      </div>
+      {/*<DragOverlayWrapper />*/}
     </DragDropProvider>
   )
 }

@@ -3,6 +3,13 @@ import type { ReactNode } from "react"
 import { Field, FieldDescription, FieldLabel } from "#/components/ui/field"
 import { Input } from "#/components/ui/input"
 import {
+  NumberField,
+  NumberFieldDecrement,
+  NumberFieldGroup,
+  NumberFieldIncrement,
+  NumberFieldInput,
+} from "#/components/ui/number-field"
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -70,21 +77,31 @@ export function NumberProperty({
   min,
   max,
   description,
-}: BaseProps & { min?: number; max?: number }): ReactNode {
+  defaultValue,
+}: BaseProps & { min?: number; max?: number; defaultValue?: number }): ReactNode {
+  const currentValue = field.state.value as number | null | undefined
+
   return (
     <Field name={field.name}>
       <FieldLabel>{label}</FieldLabel>
-      <Input
-        type="number"
-        value={(field.state.value as number | null | undefined) ?? ""}
+      <NumberField
+        value={currentValue ?? defaultValue ?? null}
         min={min}
         max={max}
-        onBlur={submitOnBlur(field, form)}
-        onChange={(e) => {
-          const val = e.target.value
-          field.handleChange(val === "" ? undefined : Number(val))
+        onValueChange={(value) => {
+          if (value != null) {
+            field.handleChange(value)
+          }
+          field.handleBlur()
+          form.handleSubmit()
         }}
-      />
+      >
+        <NumberFieldGroup>
+          <NumberFieldDecrement />
+          <NumberFieldInput />
+          <NumberFieldIncrement />
+        </NumberFieldGroup>
+      </NumberField>
       <Description text={description} />
     </Field>
   )
@@ -94,7 +111,7 @@ export function SwitchProperty({ field, form, label, description }: BaseProps): 
   return (
     <Field name={field.name}>
       <div className="flex items-center justify-between">
-        <FieldLabel className="mb-0!">{label}</FieldLabel>
+        <FieldLabel className="mr-2 mb-0!">{label}</FieldLabel>
         <Switch
           checked={!!field.state.value}
           onCheckedChange={(checked) => {
