@@ -26,12 +26,19 @@ export function ElementButton({
       ref={isDragOverlay ? undefined : ref}
       type="button"
       className={cn(
-        "flex h-8 w-full cursor-grab items-center gap-2 rounded-md px-2 text-sm text-muted-foreground transition-colors hover:bg-accent/60 hover:text-foreground",
-        isDragging && "ring-1 ring-foreground/30",
+        "flex flex-col items-center justify-center gap-2",
+        "h-24 w-full px-3 py-3",
+        "rounded-xl border border-border bg-secondary",
+        "cursor-grab active:cursor-grabbing",
+        "transition-colors duration-100",
+        "hover:border-border/60 hover:bg-background",
+        "text-muted-foreground select-none hover:text-foreground",
+        isDragging && !isDragOverlay && "opacity-40",
+        isDragOverlay && "cursor-grabbing border-foreground/20 bg-background shadow-lg",
       )}
     >
-      <Icon className="h-4 w-4 shrink-0" />
-      <span className="text-xs">{label}</span>
+      <Icon className="size-5.5 shrink-0" />
+      <span className="text-xs font-normal">{label}</span>
     </button>
   )
 }

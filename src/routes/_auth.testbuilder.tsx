@@ -3,7 +3,7 @@ import { createFileRoute } from "@tanstack/react-router"
 import FormBuilder from "#/components/builder"
 import type { Form } from "#/generated/prisma/client"
 
-export const Route = createFileRoute("/testbuilder")({
+export const Route = createFileRoute("/_auth/testbuilder")({
   component: RouteComponent,
 })
 const mockForm: Form = {

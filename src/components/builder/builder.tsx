@@ -61,7 +61,7 @@ export default function FormBuilder({ form }: { form: Form }) {
       ]}
     >
       <main className="flex h-dvh w-full flex-col overflow-hidden">
-        <Designer formName={form.name} />
+        <Designer />
       </main>
       <DragOverlayWrapper />
     </DragDropProvider>
