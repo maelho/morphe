@@ -50,9 +50,20 @@ export const NumberFieldFormElement: FormElement = {
 function DesignerComponent({ elementInstance }: { elementInstance: FormElementInstance }) {
   const { extraAttributes } = elementInstance as NumberFieldInstance
   return (
-    <div className="flex w-full items-center gap-2 text-sm text-muted-foreground">
-      <HashIcon className="size-4 shrink-0" />
-      <span className="truncate">{extraAttributes.label || "Number"}</span>
+    <div className="flex w-full flex-col gap-2 py-1">
+      <span className="text-sm font-medium text-foreground">
+        {extraAttributes.label || "Number"}
+        {extraAttributes.required && <span className="ml-1 text-destructive">*</span>}
+      </span>
+      <div className="flex h-9 w-full items-center justify-between rounded-lg border border-border bg-muted/40 px-3">
+        <span className="text-sm text-muted-foreground/60">
+          {extraAttributes.placeholder || "0"}
+        </span>
+        <HashIcon className="size-3.5 text-muted-foreground/40" />
+      </div>
+      {extraAttributes.helperText && (
+        <span className="text-xs text-muted-foreground">{extraAttributes.helperText}</span>
+      )}
     </div>
   )
 }

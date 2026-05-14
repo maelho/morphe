@@ -40,11 +40,17 @@ const borderStyleClasses = {
   dotted: "border-dotted",
 }
 
-function DesignerComponent(_elementInstance: { elementInstance: FormElementInstance }) {
+function DesignerComponent({ elementInstance }: { elementInstance: FormElementInstance }) {
+  const { extraAttributes } = elementInstance as SeparatorFieldInstance
   return (
-    <div className="flex w-full items-center gap-2 text-sm text-muted-foreground">
-      <MinusIcon className="size-4 shrink-0" />
-      <span>Divider</span>
+    <div className="flex w-full items-center py-2">
+      <div
+        className={`w-full border-t ${borderStyleClasses[extraAttributes.style]}`}
+        style={{
+          borderTopWidth: extraAttributes.thickness,
+          borderColor: extraAttributes.color || undefined,
+        }}
+      />
     </div>
   )
 }

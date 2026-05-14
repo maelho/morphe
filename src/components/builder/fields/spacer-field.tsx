@@ -34,9 +34,16 @@ export const SpacerFieldFormElement: FormElement = {
 function DesignerComponent({ elementInstance }: { elementInstance: FormElementInstance }) {
   const { extraAttributes } = elementInstance as SpacerFieldInstance
   return (
-    <div className="flex w-full items-center gap-2 text-sm text-muted-foreground">
-      <ArrowsOutLineVerticalIcon className="size-4 shrink-0" />
-      <span>Spacer ({extraAttributes.height}px)</span>
+    <div className="flex w-full flex-col items-center justify-center gap-1 py-1">
+      <div
+        className="flex w-full items-center justify-center rounded border border-dashed border-border/60 bg-muted/20"
+        style={{ height: Math.max(extraAttributes.height, 20) }}
+      >
+        <div className="flex items-center gap-1.5 text-xs text-muted-foreground/50">
+          <ArrowsOutLineVerticalIcon className="size-3" />
+          <span>{extraAttributes.height}px</span>
+        </div>
+      </div>
     </div>
   )
 }

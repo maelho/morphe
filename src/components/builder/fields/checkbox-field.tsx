@@ -44,9 +44,17 @@ export const CheckboxFieldFormElement: FormElement = {
 function DesignerComponent({ elementInstance }: { elementInstance: FormElementInstance }) {
   const { extraAttributes } = elementInstance as CheckboxFieldInstance
   return (
-    <div className="flex w-full items-center gap-2 text-sm text-muted-foreground">
-      <CheckSquareIcon className="size-4 shrink-0" />
-      <span className="truncate">{extraAttributes.label || "Checkbox"}</span>
+    <div className="flex w-full flex-col gap-2 py-1">
+      <div className="flex items-center gap-3">
+        <div className="size-4 shrink-0 rounded border-2 border-border bg-muted/40" />
+        <span className="text-sm font-medium text-foreground">
+          {extraAttributes.label || "Checkbox"}
+          {extraAttributes.required && <span className="ml-1 text-destructive">*</span>}
+        </span>
+      </div>
+      {extraAttributes.helperText && (
+        <span className="ml-7 text-xs text-muted-foreground">{extraAttributes.helperText}</span>
+      )}
     </div>
   )
 }

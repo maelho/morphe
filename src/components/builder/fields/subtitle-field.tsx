@@ -55,9 +55,13 @@ const alignmentClasses = {
 function DesignerComponent({ elementInstance }: { elementInstance: FormElementInstance }) {
   const { extraAttributes } = elementInstance as SubtitleFieldInstance
   return (
-    <div className="flex w-full items-center gap-2 text-sm text-muted-foreground">
-      <TextTIcon className="size-4 shrink-0" />
-      <span className="truncate">{extraAttributes.subtitle || "Subtitle"}</span>
+    <div className="flex w-full flex-col py-1">
+      <p
+        className={`text-muted-foreground ${fontSizeClasses[extraAttributes.fontSize]} ${fontWeightClasses[extraAttributes.fontWeight]} ${alignmentClasses[extraAttributes.alignment]}`}
+        style={extraAttributes.color ? { color: extraAttributes.color } : undefined}
+      >
+        {extraAttributes.subtitle || "Subtitle"}
+      </p>
     </div>
   )
 }

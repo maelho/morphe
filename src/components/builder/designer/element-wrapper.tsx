@@ -142,7 +142,7 @@ const ElementBody = memo(function ElementBody({
 
   if (isDragging) return null
 
-  const FormComponent = FormElements[element.type].formComponent
+  const FormComponent = FormElements[element.type].designerComponent
 
   return (
     <div

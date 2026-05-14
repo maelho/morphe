@@ -51,9 +51,19 @@ export const TextareaFieldFormElement: FormElement = {
 function DesignerComponent({ elementInstance }: { elementInstance: FormElementInstance }) {
   const { extraAttributes } = elementInstance as TextareaFieldInstance
   return (
-    <div className="flex w-full items-center gap-2 text-sm text-muted-foreground">
-      <TextIndentIcon className="size-4 shrink-0" />
-      <span className="truncate">{extraAttributes.label || "Long Text"}</span>
+    <div className="flex w-full flex-col gap-2 py-1">
+      <span className="text-sm font-medium text-foreground">
+        {extraAttributes.label || "Long Text"}
+        {extraAttributes.required && <span className="ml-1 text-destructive">*</span>}
+      </span>
+      <div className="flex min-h-[64px] w-full items-start rounded-lg border border-border bg-muted/40 px-3 py-2">
+        <span className="truncate text-sm text-muted-foreground/60">
+          {extraAttributes.placeholder || "Write your answer…"}
+        </span>
+      </div>
+      {extraAttributes.helperText && (
+        <span className="text-xs text-muted-foreground">{extraAttributes.helperText}</span>
+      )}
     </div>
   )
 }

@@ -57,9 +57,13 @@ const alignmentClasses = {
 function DesignerComponent({ elementInstance }: { elementInstance: FormElementInstance }) {
   const { extraAttributes } = elementInstance as TitleFieldInstance
   return (
-    <div className="flex w-full items-center gap-2 text-sm text-muted-foreground">
-      <TextHIcon className="size-4 shrink-0" />
-      <span className="truncate">{extraAttributes.title || "Heading"}</span>
+    <div className="flex w-full flex-col py-1">
+      <p
+        className={`${fontSizeClasses[extraAttributes.fontSize]} ${fontWeightClasses[extraAttributes.fontWeight]} ${alignmentClasses[extraAttributes.alignment]}`}
+        style={extraAttributes.color ? { color: extraAttributes.color } : undefined}
+      >
+        {extraAttributes.title || "Heading"}
+      </p>
     </div>
   )
 }
