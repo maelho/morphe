@@ -4,24 +4,9 @@ import { useEffect, useRef } from "react"
 import type { designerStore } from "./store"
 import type { DesignerStore } from "./store"
 
-// ---------------------------------------------------------------------------
-// Constants
-// ---------------------------------------------------------------------------
-
 const STORAGE_PREFIX = "designer-store-"
-
-/**
- * Bump this whenever the persisted shape changes in a breaking way.
- * On a version mismatch the stored data is discarded rather than
- * trying to migrate, keeping the code simple and safe.
- */
 const STORAGE_VERSION = 1
 
-// ---------------------------------------------------------------------------
-// Internal types
-// ---------------------------------------------------------------------------
-
-/** Only the fields we actually persist. Runtime-only state is excluded. */
 type PersistedPayload = {
   version: number
   elements: DesignerStore["elements"]
@@ -30,17 +15,9 @@ type PersistedPayload = {
   formName: DesignerStore["formName"]
 }
 
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
 export function getStorageKey(formId: string | null): string {
   return formId ? `${STORAGE_PREFIX}${formId}` : `${STORAGE_PREFIX}default`
 }
-
-// ---------------------------------------------------------------------------
-// Core persistence API
-// ---------------------------------------------------------------------------
 
 export function saveToStorage(state: DesignerStore): void {
   try {
@@ -95,15 +72,10 @@ export function clearDesignerStorage(formId: string | null): void {
   try {
     localStorage.removeItem(getStorageKey(formId))
   } catch {
-    // Silently ignore — storage may be unavailable (e.g. private browsing).
+    // ignore
   }
 }
 
-/**
- * Hydrates the store from localStorage for the given `formId`.
- * Resets all runtime-only state (selection, undo/redo history) so the
- * user always starts a session with a clean slate.
- */
 export function hydrateDesignerStore(
   store: Pick<typeof designerStore, "setState">,
   formId: string | null,
@@ -125,39 +97,19 @@ export function hydrateDesignerStore(
   }))
 }
 
-// ---------------------------------------------------------------------------
-// React hook
-// ---------------------------------------------------------------------------
-
-/**
- * Subscribes to the designer store and debounce-saves to localStorage
- * whenever structurally relevant state changes.
- *
- * Runtime-only fields (selectedElementId, editingElementId, past, future)
- * are intentionally excluded from the comparison so that hover/selection
- * interactions don't trigger unnecessary writes.
- */
 export function useDesignerPersistence(
   store: Pick<typeof designerStore, "subscribe" | "state">,
 ): void {
-  // Debouncer class instance — unlike the `debounce()` helper function,
-  // `Debouncer` exposes `.cancel()` for cleanup on unmount.
   const debouncerRef = useRef(
     new Debouncer((state: DesignerStore) => saveToStorage(state), { wait: 300 }),
   )
 
-  // Track the last-saved "structural fingerprint" so we skip writes when only
-  // runtime state (selection, undo history) changed.
   const lastFingerprintRef = useRef<string | null>(null)
-
-  // Keep a ref to the latest state so the cleanup can flush it without
-  // needing store.state (which may not exist on the Pick type at runtime).
   const latestStateRef = useRef<DesignerStore>(store.state)
 
   useEffect(() => {
     const debouncer = debouncerRef.current
 
-    // Store.subscribe(listener) returns a Subscription object: { unsubscribe() }.
     const subscription = store.subscribe((state: DesignerStore) => {
       latestStateRef.current = state
 
@@ -175,8 +127,7 @@ export function useDesignerPersistence(
     })
 
     return () => {
-      // Cancel the pending debounced write, then save immediately so the
-      // last change is never silently dropped on unmount.
+      // Cancel the pending debounced write, then save immediately.
       debouncer.cancel()
       saveToStorage(latestStateRef.current)
       subscription.unsubscribe()

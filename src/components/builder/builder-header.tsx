@@ -2,12 +2,8 @@ import { ArrowClockwiseIcon, ArrowCounterClockwiseIcon } from "@phosphor-icons/r
 
 import { Button } from "#/components/ui/button"
 
-import {
-  designerStore,
-  useCanRedo,
-  useCanUndo,
-  useFormInfo,
-} from "./designer/store"
+import { designerStore, useCanRedo, useCanUndo, useFormInfo } from "./designer/store"
+import FormBuilderPreviewButton from "./preview"
 
 export function BuilderHeader() {
   const { formName } = useFormInfo()
@@ -17,11 +13,6 @@ export function BuilderHeader() {
   const getFormData = () => {
     const { order, elements } = designerStore.state
     return order.map((id: string) => elements[id]).filter(Boolean)
-  }
-
-  const handlePreview = () => {
-    const data = getFormData()
-    console.log("Preview:", data)
   }
 
   const handleSave = () => {
@@ -57,9 +48,7 @@ export function BuilderHeader() {
         </Button>
       </div>
       <div className="flex items-center gap-2">
-        <Button variant="ghost" size="sm" onClick={handlePreview}>
-          <span className="hidden sm:inline">Preview</span>
-        </Button>
+        <FormBuilderPreviewButton />
         <Button variant="secondary" size="sm" onClick={handleSave}>
           <span className="hidden sm:inline">Save</span>
         </Button>

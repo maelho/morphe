@@ -5,7 +5,7 @@ import { Form } from "#/components/ui/form"
 import { Input } from "#/components/ui/input"
 
 import { dateFieldAttributesSchema } from "../form-schemas"
-import type { ElementInstanceOf, FormElement, FormElementInstance } from "../form-types"
+import type { ElementInstanceOf, FormElement, FormElementInstance, SubmitFunction } from "../form-types"
 import { BaseProperties } from "./base-properties"
 import { DateProperty } from "./property-fields"
 import { useElementForm } from "./use-element-form"
@@ -67,13 +67,26 @@ function DesignerComponent({ elementInstance }: { elementInstance: FormElementIn
 function FormComponent({
   elementInstance,
   isInvalid,
-  defaultValue,
+  value,
+  submitValue,
+  errorMessage,
+  onBlur,
 }: {
   elementInstance: FormElementInstance
   isInvalid?: boolean
-  defaultValue?: string
+  value?: string
+  submitValue?: SubmitFunction
+  errorMessage?: string
+  onBlur?: () => void
 }) {
   const { extraAttributes } = elementInstance as DateFieldInstance
+  const elementId = elementInstance.id
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (submitValue) {
+      submitValue(elementId, e.target.value)
+    }
+  }
 
   return (
     <Field>
@@ -83,17 +96,19 @@ function FormComponent({
       </FieldLabel>
       <Input
         type="date"
-        defaultValue={defaultValue}
+        value={value}
         aria-invalid={isInvalid}
         disabled={extraAttributes.disabled}
         min={extraAttributes.minDate}
         max={extraAttributes.maxDate}
+        onChange={handleChange}
+        onBlur={onBlur}
       />
       {extraAttributes.helperText && (
         <FieldDescription>{extraAttributes.helperText}</FieldDescription>
       )}
       {isInvalid && (
-        <FieldError>{extraAttributes.customErrorMessage || "This field is required"}</FieldError>
+        <FieldError>{errorMessage || extraAttributes.customErrorMessage || "This field is required"}</FieldError>
       )}
     </Field>
   )

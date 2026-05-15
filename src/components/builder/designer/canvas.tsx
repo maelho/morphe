@@ -3,8 +3,8 @@ import { useDroppable } from "@dnd-kit/react"
 import { cn } from "#/lib/utils"
 
 import { DropAreaContent } from "./drop-area"
-import { DesignerSidebar } from "./sidebar/shell"
 import { PropertiesSidebar } from "./sidebar/properties-sidebar"
+import { DesignerSidebar } from "./sidebar/shell"
 import { designerStore, useDesignerOrder } from "./store"
 import { useDesignerDragDrop } from "./use-drag-drop"
 
@@ -23,7 +23,7 @@ export function Designer() {
   }
 
   return (
-    <div className="flex flex-1 w-full overflow-hidden">
+    <div className="flex w-full flex-1 overflow-hidden">
       <aside className="w-64 shrink-0 overflow-y-auto border-r border-border bg-background">
         <DesignerSidebar />
       </aside>

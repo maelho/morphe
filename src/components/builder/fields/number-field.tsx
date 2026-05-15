@@ -11,7 +11,12 @@ import {
 } from "#/components/ui/number-field"
 
 import { numberFieldAttributesSchema } from "../form-schemas"
-import type { ElementInstanceOf, FormElement, FormElementInstance } from "../form-types"
+import type {
+  ElementInstanceOf,
+  FormElement,
+  FormElementInstance,
+  SubmitFunction,
+} from "../form-types"
 import { BaseProperties } from "./base-properties"
 import { NumberProperty } from "./property-fields"
 import { useElementForm } from "./use-element-form"
@@ -86,14 +91,23 @@ function DesignerComponent({ elementInstance }: { elementInstance: FormElementIn
 function FormComponent({
   elementInstance,
   isInvalid,
-  defaultValue,
+  value,
+  submitValue,
 }: {
   elementInstance: FormElementInstance
   isInvalid?: boolean
-  defaultValue?: string
+  value?: string
+  submitValue?: SubmitFunction
 }) {
   const { extraAttributes } = elementInstance as NumberFieldInstance
-  const parsedDefault = defaultValue ? parseFloat(defaultValue) : undefined
+
+  const parsedValue = value !== undefined && value !== "" ? parseFloat(value) : null
+
+  const elementId = elementInstance.id
+
+  const handleChange = (newValue: number | null) => {
+    submitValue?.(elementId, newValue?.toString() ?? "")
+  }
 
   return (
     <Field>
@@ -101,12 +115,14 @@ function FormComponent({
         {extraAttributes.label}
         {extraAttributes.required && <span className="ml-1 text-destructive">*</span>}
       </FieldLabel>
+
       <NumberField
-        defaultValue={parsedDefault}
+        value={parsedValue}
         min={extraAttributes.min}
         max={extraAttributes.max}
         step={extraAttributes.step}
         disabled={extraAttributes.disabled}
+        onValueChange={handleChange}
       >
         <NumberFieldGroup>
           <NumberFieldDecrement />
@@ -114,11 +130,14 @@ function FormComponent({
           <NumberFieldIncrement />
         </NumberFieldGroup>
       </NumberField>
+
       {extraAttributes.helperText && (
         <FieldDescription>{extraAttributes.helperText}</FieldDescription>
       )}
       {isInvalid && (
-        <FieldError>{extraAttributes.customErrorMessage || "This field is required"}</FieldError>
+        <span className="text-xs text-destructive-foreground">
+          {extraAttributes.customErrorMessage || "This field is required"}
+        </span>
       )}
     </Field>
   )

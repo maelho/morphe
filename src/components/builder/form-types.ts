@@ -143,7 +143,10 @@ export type FormElement = {
     elementInstance: FormElementInstance
     submitValue?: SubmitFunction
     isInvalid?: boolean
+    value?: string
     defaultValue?: string
+    errorMessage?: string
+    onBlur?: () => void
   }) => ReactNode
   propertiesComponent: (props: { elementInstance: FormElementInstance }) => ReactNode
   validate: (formElement: FormElementInstance, currentValue: string) => boolean

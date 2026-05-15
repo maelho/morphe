@@ -1,12 +1,16 @@
 import { CheckSquareIcon } from "@phosphor-icons/react"
-import { useState } from "react"
 
 import { Checkbox } from "#/components/ui/checkbox"
-import { Field, FieldDescription, FieldError, FieldLabel } from "#/components/ui/field"
+import { Field, FieldDescription, FieldLabel } from "#/components/ui/field"
 import { Form } from "#/components/ui/form"
 
 import { checkboxFieldAttributesSchema } from "../form-schemas"
-import type { ElementInstanceOf, FormElement, FormElementInstance } from "../form-types"
+import type {
+  ElementInstanceOf,
+  FormElement,
+  FormElementInstance,
+  SubmitFunction,
+} from "../form-types"
 import { BaseProperties } from "./base-properties"
 import { useElementForm } from "./use-element-form"
 
@@ -63,14 +67,25 @@ function DesignerComponent({ elementInstance }: { elementInstance: FormElementIn
 function FormComponent({
   elementInstance,
   isInvalid,
-  defaultValue,
+  value,
+  submitValue,
+  errorMessage,
 }: {
   elementInstance: FormElementInstance
   isInvalid?: boolean
-  defaultValue?: string
+  value?: string
+  submitValue?: SubmitFunction
+  errorMessage?: string
 }) {
   const { extraAttributes } = elementInstance as CheckboxFieldInstance
-  const [checked, setChecked] = useState(defaultValue === CHECKED_VALUE)
+  const elementId = elementInstance.id
+  const checked = value === CHECKED_VALUE
+
+  const handleCheckedChange = (newChecked: boolean) => {
+    if (submitValue) {
+      submitValue(elementId, newChecked ? CHECKED_VALUE : "")
+    }
+  }
 
   return (
     <Field>
@@ -78,7 +93,7 @@ function FormComponent({
         <Checkbox
           disabled={extraAttributes.disabled}
           checked={checked}
-          onCheckedChange={setChecked}
+          onCheckedChange={handleCheckedChange}
           className="mr-2"
         />
         {extraAttributes.label}
@@ -88,9 +103,9 @@ function FormComponent({
         <FieldDescription className="ml-6">{extraAttributes.helperText}</FieldDescription>
       )}
       {isInvalid && (
-        <FieldError className="ml-6">
-          {extraAttributes.customErrorMessage || "This field is required"}
-        </FieldError>
+        <span className="text-xs text-destructive-foreground">
+          {extraAttributes.customErrorMessage || errorMessage || "This field is required"}
+        </span>
       )}
     </Field>
   )

@@ -1,11 +1,16 @@
 import { TextIndentIcon } from "@phosphor-icons/react"
 
-import { Field, FieldDescription, FieldError, FieldLabel } from "#/components/ui/field"
+import { Field, FieldDescription, FieldLabel } from "#/components/ui/field"
 import { Form } from "#/components/ui/form"
 import { Textarea } from "#/components/ui/textarea"
 
 import { textareaFieldAttributesSchema } from "../form-schemas"
-import type { ElementInstanceOf, FormElement, FormElementInstance } from "../form-types"
+import type {
+  ElementInstanceOf,
+  FormElement,
+  FormElementInstance,
+  SubmitFunction,
+} from "../form-types"
 import { BaseProperties } from "./base-properties"
 import { NumberProperty } from "./property-fields"
 import { useElementForm } from "./use-element-form"
@@ -71,13 +76,26 @@ function DesignerComponent({ elementInstance }: { elementInstance: FormElementIn
 function FormComponent({
   elementInstance,
   isInvalid,
-  defaultValue,
+  value,
+  submitValue,
+  errorMessage,
+  onBlur,
 }: {
   elementInstance: FormElementInstance
   isInvalid?: boolean
-  defaultValue?: string
+  value?: string
+  submitValue?: SubmitFunction
+  errorMessage?: string
+  onBlur?: () => void
 }) {
   const { extraAttributes } = elementInstance as TextareaFieldInstance
+  const elementId = elementInstance.id
+
+  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    if (submitValue) {
+      submitValue(elementId, e.target.value)
+    }
+  }
 
   return (
     <Field>
@@ -87,17 +105,21 @@ function FormComponent({
       </FieldLabel>
       <Textarea
         placeholder={extraAttributes.placeholder}
-        defaultValue={defaultValue}
+        value={value}
         aria-invalid={isInvalid}
         disabled={extraAttributes.disabled}
         rows={extraAttributes.rows ?? DEFAULT_ROWS}
         maxLength={extraAttributes.maxLength}
+        onChange={handleChange}
+        onBlur={onBlur}
       />
       {extraAttributes.helperText && (
         <FieldDescription>{extraAttributes.helperText}</FieldDescription>
       )}
       {isInvalid && (
-        <FieldError>{extraAttributes.customErrorMessage || "This field is required"}</FieldError>
+        <span className="text-xs text-destructive-foreground">
+          {extraAttributes.customErrorMessage || errorMessage || "This field is required"}
+        </span>
       )}
     </Field>
   )

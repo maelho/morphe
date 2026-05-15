@@ -1,11 +1,16 @@
 import { CaretDownIcon, ListIcon } from "@phosphor-icons/react"
 
-import { Field, FieldDescription, FieldError, FieldLabel } from "#/components/ui/field"
+import { Field, FieldDescription, FieldLabel } from "#/components/ui/field"
 import { Form } from "#/components/ui/form"
 import { Select, SelectItem, SelectPopup, SelectTrigger, SelectValue } from "#/components/ui/select"
 
 import { selectFieldAttributesSchema } from "../form-schemas"
-import type { ElementInstanceOf, FormElement, FormElementInstance } from "../form-types"
+import type {
+  ElementInstanceOf,
+  FormElement,
+  FormElementInstance,
+  SubmitFunction,
+} from "../form-types"
 import { BaseProperties } from "./base-properties"
 import { OptionsEditor } from "./options-editor"
 import { SwitchProperty } from "./property-fields"
@@ -77,14 +82,27 @@ function DesignerComponent({ elementInstance }: { elementInstance: FormElementIn
 function FormComponent({
   elementInstance,
   isInvalid,
-  defaultValue,
+  value,
+  submitValue,
+  errorMessage,
+  onBlur,
 }: {
   elementInstance: FormElementInstance
   isInvalid?: boolean
-  defaultValue?: string
+  value?: string
+  submitValue?: SubmitFunction
+  errorMessage?: string
+  onBlur?: () => void
 }) {
   const { extraAttributes } = elementInstance as SelectFieldInstance
-  const defaultItem = extraAttributes.options.find((o) => o.value === defaultValue) ?? null
+  const elementId = elementInstance.id
+  const selectedItem = extraAttributes.options.find((o) => o.value === value) ?? null
+
+  const handleValueChange = (item: { value: string; label: string } | null) => {
+    if (submitValue) {
+      submitValue(elementId, item?.value ?? "")
+    }
+  }
 
   return (
     <Field>
@@ -93,11 +111,12 @@ function FormComponent({
         {extraAttributes.required && <span className="ml-1 text-destructive">*</span>}
       </FieldLabel>
       <Select
-        value={defaultItem}
+        value={selectedItem}
         items={extraAttributes.options}
         disabled={extraAttributes.disabled}
+        onValueChange={handleValueChange}
       >
-        <SelectTrigger>
+        <SelectTrigger onBlur={onBlur}>
           <SelectValue />
         </SelectTrigger>
         <SelectPopup>
@@ -112,7 +131,9 @@ function FormComponent({
         <FieldDescription>{extraAttributes.helperText}</FieldDescription>
       )}
       {isInvalid && (
-        <FieldError>{extraAttributes.customErrorMessage || "This field is required"}</FieldError>
+        <span className="text-xs text-destructive-foreground">
+          {extraAttributes.customErrorMessage || errorMessage || "This field is required"}
+        </span>
       )}
     </Field>
   )
@@ -134,12 +155,10 @@ function PropertiesComponent({ elementInstance }: { elementInstance: FormElement
         <form.Field name="options">
           {(field) => (
             <OptionsEditor
-              value={field.state.value.map(
-                (opt: { value: string; label: string }, i: number) => ({
-                  ...opt,
-                  id: `opt-${i}`,
-                }),
-              )}
+              value={field.state.value.map((opt: { value: string; label: string }, i: number) => ({
+                ...opt,
+                id: `opt-${i}`,
+              }))}
               onChange={(options) => {
                 field.handleChange(options.map(({ id: _, ...rest }) => rest))
                 form.handleSubmit()
