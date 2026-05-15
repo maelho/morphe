@@ -1,13 +1,21 @@
-import { CalendarIcon } from "@phosphor-icons/react"
+import { CalendarBlankIcon, CalendarIcon } from "@phosphor-icons/react"
 
-import { Field, FieldError, FieldLabel, FieldDescription } from "#/components/ui/field"
+import { Button } from "#/components/ui/button"
+import { Calendar } from "#/components/ui/calendar"
+import { Field, FieldLabel, FieldDescription } from "#/components/ui/field"
 import { Form } from "#/components/ui/form"
-import { Input } from "#/components/ui/input"
+import { Popover, PopoverContent, PopoverTrigger } from "#/components/ui/popover"
+import { cn } from "#/lib/utils"
 
 import { dateFieldAttributesSchema } from "../form-schemas"
-import type { ElementInstanceOf, FormElement, FormElementInstance, SubmitFunction } from "../form-types"
+import type {
+  ElementInstanceOf,
+  FormElement,
+  FormElementInstance,
+  SubmitFunction,
+} from "../form-types"
 import { BaseProperties } from "./base-properties"
-import { DateProperty } from "./property-fields"
+import { DateRangeProperty } from "./property-fields"
 import { useElementForm } from "./use-element-form"
 import { createDateFieldSchema } from "./validation"
 
@@ -81,11 +89,27 @@ function FormComponent({
 }) {
   const { extraAttributes } = elementInstance as DateFieldInstance
   const elementId = elementInstance.id
+  const selectedDate = value ? new Date(value + "T00:00:00") : undefined
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (submitValue) {
-      submitValue(elementId, e.target.value)
-    }
+  const formattedDisplayDate = selectedDate
+    ? new Intl.DateTimeFormat("en-US", {
+        year: "2-digit",
+        month: "short",
+        day: "numeric",
+      }).format(selectedDate)
+    : null
+
+  const handleSelect = (date?: Date) => {
+    if (!submitValue) return
+
+    const formatted = date
+      ? `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(
+          2,
+          "0",
+        )}-${String(date.getDate()).padStart(2, "0")}`
+      : ""
+
+    submitValue(elementId, formatted)
   }
 
   return (
@@ -94,21 +118,70 @@ function FormComponent({
         {extraAttributes.label}
         {extraAttributes.required && <span className="ml-1 text-destructive">*</span>}
       </FieldLabel>
-      <Input
-        type="date"
-        value={value}
-        aria-invalid={isInvalid}
-        disabled={extraAttributes.disabled}
-        min={extraAttributes.minDate}
-        max={extraAttributes.maxDate}
-        onChange={handleChange}
-        onBlur={onBlur}
-      />
+
+      <Popover>
+        <PopoverTrigger
+          render={
+            <Button
+              type="button"
+              variant="outline"
+              disabled={extraAttributes.disabled}
+              aria-invalid={isInvalid}
+              onBlur={onBlur}
+              className={cn(
+                "w-full justify-between text-left font-normal",
+                !selectedDate && "text-muted-foreground",
+              )}
+            >
+              {formattedDisplayDate ? formattedDisplayDate : <span>Pick a date</span>}
+
+              <CalendarBlankIcon className="size-4 opacity-50" />
+            </Button>
+          }
+        />
+        <PopoverContent className="w-auto p-0" align="start">
+          <Calendar
+            mode="single"
+            selected={selectedDate}
+            onSelect={handleSelect}
+            captionLayout="dropdown"
+            startMonth={
+              extraAttributes.minDate ? new Date(extraAttributes.minDate) : new Date(1900, 0)
+            }
+            endMonth={
+              extraAttributes.maxDate ? new Date(extraAttributes.maxDate) : new Date(2100, 11)
+            }
+            disabled={(date) => {
+              const minDate = extraAttributes.minDate
+                ? new Date(extraAttributes.minDate)
+                : undefined
+
+              const maxDate = extraAttributes.maxDate
+                ? new Date(extraAttributes.maxDate)
+                : undefined
+
+              if (minDate && date < minDate) {
+                return true
+              }
+
+              if (maxDate && date > maxDate) {
+                return true
+              }
+
+              return false
+            }}
+          />
+        </PopoverContent>
+      </Popover>
+
       {extraAttributes.helperText && (
         <FieldDescription>{extraAttributes.helperText}</FieldDescription>
       )}
+
       {isInvalid && (
-        <FieldError>{errorMessage || extraAttributes.customErrorMessage || "This field is required"}</FieldError>
+        <span className="text-xs text-destructive-foreground">
+          {extraAttributes.customErrorMessage || errorMessage || "This field is required"}
+        </span>
       )}
     </Field>
   )
@@ -130,14 +203,20 @@ function PropertiesComponent({ elementInstance }: { elementInstance: FormElement
         form={form}
         hasPlaceholder={false}
         extraValidationSettings={
-          <div className="grid grid-cols-2 gap-2">
-            <form.Field name="minDate">
-              {(field) => <DateProperty field={field} form={form} label="Min Date" />}
-            </form.Field>
-            <form.Field name="maxDate">
-              {(field) => <DateProperty field={field} form={form} label="Max Date" />}
-            </form.Field>
-          </div>
+          <form.Field name="minDate">
+            {(minField) => (
+              <form.Field name="maxDate">
+                {(maxField) => (
+                  <DateRangeProperty
+                    fieldFrom={minField}
+                    fieldTo={maxField}
+                    form={form}
+                    label="Date Range"
+                  />
+                )}
+              </form.Field>
+            )}
+          </form.Field>
         }
       />
     </Form>

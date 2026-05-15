@@ -1,5 +1,6 @@
-import { useForm } from "@tanstack/react-form"
+import { useForm, type AnyFieldApi } from "@tanstack/react-form"
 import { useMemo } from "react"
+import type z from "zod"
 
 import { Button } from "../ui/button"
 import {
@@ -24,25 +25,45 @@ export default function FormBuilderPreviewButton() {
     return buildFormSchema(elementOrder, elements)
   }, [elementOrder, elements])
 
+  const fieldSchemas = useMemo(() => {
+    const schemas: Record<string, z.ZodType> = {}
+
+    for (const id of elementOrder) {
+      const element = elements[id]
+
+      if (!element) {
+        continue
+      }
+
+      schemas[id] = getFieldSchema(element)
+    }
+
+    return schemas
+  }, [elementOrder, elements])
+
   const form = useForm({
     defaultValues: {},
+
     validators: {
       onSubmit: formSchema,
     },
-    onSubmit: (values) => {
-      console.log("Form submitted:", values.value)
-      alert(`Form submitted! Check console for data.\n\n${JSON.stringify(values.value, null, 2)}`)
+
+    onSubmit: ({ value }) => {
+      console.log("Form submitted:", value)
     },
   })
 
   return (
     <Dialog>
       <DialogTrigger render={<Button variant="ghost" />}>Preview</DialogTrigger>
+
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Form preview</DialogTitle>
+
           <DialogDescription>Preview how your form will look to users.</DialogDescription>
         </DialogHeader>
+
         <DialogPanel>
           {elementOrder.length === 0 ? (
             <p className="text-sm text-muted-foreground">Add an element to preview the form.</p>
@@ -51,43 +72,45 @@ export default function FormBuilderPreviewButton() {
               id="preview-form"
               onSubmit={(e) => {
                 e.preventDefault()
-                form.handleSubmit()
+                e.stopPropagation()
+
+                void form.handleSubmit()
               }}
               className="flex flex-col gap-4"
             >
               {elementOrder.map((id) => {
                 const element = elements[id]
-                if (!element) return null
+
+                if (!element) {
+                  return null
+                }
 
                 return (
                   <form.Field
                     key={id}
                     name={id}
                     validators={{
-                      onBlur: getFieldSchema(element),
-                      onSubmit: getFieldSchema(element),
+                      onBlur: fieldSchemas[id],
                     }}
                   >
                     {(field) => <FieldWrapper element={element} field={field} />}
                   </form.Field>
                 )
               })}
-              {elementOrder.length > 0 && (
-                <div className="flex gap-2">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => {
-                      form.reset()
-                    }}
-                  >
-                    Reset
-                  </Button>
-                  <Button type="submit" form="preview-form">
-                    Submit
-                  </Button>
-                </div>
-              )}
+
+              <div className="flex gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    form.reset()
+                  }}
+                >
+                  Reset
+                </Button>
+
+                <Button type="submit">Submit</Button>
+              </div>
             </form>
           )}
         </DialogPanel>
@@ -96,17 +119,21 @@ export default function FormBuilderPreviewButton() {
   )
 }
 
-function FieldWrapper({ element, field }: { element: FormElementInstance; field: any }) {
+function FieldWrapper({ element, field }: { element: FormElementInstance; field: AnyFieldApi }) {
   const FormComponent = FormElements[element.type].formComponent
 
   const handleChange: SubmitFunction = (_key, value) => {
     field.handleChange(value)
   }
 
+  const firstError = field.state.meta.errors[0]
+
   const errorMessage =
-    field.state.meta.isTouched && field.state.meta.errors.length > 0
-      ? field.state.meta.errors[0].message
-      : undefined
+    typeof firstError === "string"
+      ? firstError
+      : typeof firstError === "object" && firstError !== null && "message" in firstError
+        ? String(firstError.message)
+        : undefined
 
   return (
     <FormComponent
@@ -114,7 +141,7 @@ function FieldWrapper({ element, field }: { element: FormElementInstance; field:
       submitValue={handleChange}
       onBlur={field.handleBlur}
       value={field.state.value ?? ""}
-      isInvalid={!!errorMessage}
+      isInvalid={Boolean(errorMessage)}
       errorMessage={errorMessage}
     />
   )

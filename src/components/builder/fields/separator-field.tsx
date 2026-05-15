@@ -83,7 +83,14 @@ function PropertiesComponent({ elementInstance }: { elementInstance: FormElement
         <div className="space-y-4">
           <form.Field name="thickness">
             {(field) => (
-              <NumberProperty field={field} form={form} label="Thickness (px)" min={1} max={20} defaultValue={1} />
+              <NumberProperty
+                field={field}
+                form={form}
+                label="Thickness (px)"
+                min={1}
+                max={20}
+                defaultValue={1}
+              />
             )}
           </form.Field>
 

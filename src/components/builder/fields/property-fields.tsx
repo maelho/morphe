@@ -1,5 +1,9 @@
+import { CalendarBlankIcon } from "@phosphor-icons/react"
 import type { ReactNode } from "react"
+import type { DateRange } from "react-day-picker"
 
+import { Button } from "#/components/ui/button"
+import { Calendar } from "#/components/ui/calendar"
 import { Field, FieldDescription, FieldLabel } from "#/components/ui/field"
 import { Input } from "#/components/ui/input"
 import {
@@ -9,6 +13,7 @@ import {
   NumberFieldIncrement,
   NumberFieldInput,
 } from "#/components/ui/number-field"
+import { Popover, PopoverContent, PopoverTrigger } from "#/components/ui/popover"
 import {
   Select,
   SelectContent,
@@ -18,6 +23,7 @@ import {
 } from "#/components/ui/select"
 import { Switch } from "#/components/ui/switch"
 import { Textarea } from "#/components/ui/textarea"
+import { cn } from "#/lib/utils"
 
 interface FieldLike {
   name: string
@@ -32,6 +38,14 @@ interface FormLike {
 
 interface BaseProps {
   field: FieldLike
+  form: FormLike
+  label: string
+  description?: string
+}
+
+interface DateRangePropertyProps {
+  fieldFrom: FieldLike
+  fieldTo: FieldLike
   form: FormLike
   label: string
   description?: string
@@ -183,16 +197,79 @@ export function TextareaProperty({
   )
 }
 
-export function DateProperty({ field, form, label, description }: BaseProps): ReactNode {
+export function DateRangeProperty({
+  fieldFrom,
+  fieldTo,
+  form,
+  label,
+  description,
+}: DateRangePropertyProps): ReactNode {
+  const selectedRange: DateRange = {
+    from: fieldFrom.state.value ? new Date(fieldFrom.state.value as string) : undefined,
+    to: fieldTo.state.value ? new Date(fieldTo.state.value as string) : undefined,
+  }
+
+  const formatDate = (date?: Date) =>
+    date
+      ? new Intl.DateTimeFormat("en-US", {
+          year: "2-digit",
+          month: "short",
+          day: "numeric",
+        }).format(date)
+      : null
+
+  const formatToISO = (date?: Date) =>
+    date
+      ? `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`
+      : undefined
+
+  const handleSelect = (range?: DateRange) => {
+    fieldFrom.handleChange(formatToISO(range?.from))
+    fieldTo.handleChange(formatToISO(range?.to))
+
+    if (range?.to) {
+      fieldFrom.handleBlur()
+      fieldTo.handleBlur()
+      form.handleSubmit() // persist once the range is complete
+    }
+  }
+
+  const displayLabel =
+    selectedRange.from && selectedRange.to
+      ? `${formatDate(selectedRange.from)} – ${formatDate(selectedRange.to)}`
+      : selectedRange.from
+        ? `${formatDate(selectedRange.from)} – Pick end`
+        : "Pick a date range"
+
   return (
-    <Field name={field.name}>
+    <Field name={fieldFrom.name}>
       <FieldLabel>{label}</FieldLabel>
-      <Input
-        type="date"
-        value={(field.state.value as string) || ""}
-        onBlur={submitOnBlur(field, form)}
-        onChange={(e) => field.handleChange(e.target.value || undefined)}
-      />
+      <Popover>
+        <PopoverTrigger
+          render={
+            <Button
+              type="button"
+              variant="outline"
+              className={cn(
+                "w-full justify-between text-left font-normal",
+                !selectedRange.from && "text-muted-foreground",
+              )}
+            >
+              <span>{displayLabel}</span>
+              <CalendarBlankIcon className="size-4 opacity-50" />
+            </Button>
+          }
+        />
+        <PopoverContent className="w-auto p-0" align="start">
+          <Calendar
+            mode="range"
+            selected={selectedRange}
+            onSelect={handleSelect}
+            captionLayout="dropdown"
+            numberOfMonths={1}
+          />
+        </PopoverContent>
+      </Popover>
       <Description text={description} />
     </Field>
   )

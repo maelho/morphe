@@ -1,6 +1,6 @@
 import { HashIcon } from "@phosphor-icons/react"
 
-import { Field, FieldError, FieldLabel, FieldDescription } from "#/components/ui/field"
+import { Field, FieldLabel, FieldDescription } from "#/components/ui/field"
 import { Form } from "#/components/ui/form"
 import {
   NumberField,

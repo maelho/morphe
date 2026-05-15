@@ -1,6 +1,6 @@
 import { z } from "zod"
 
-import type { FormElementInstance } from "../form-types"
+import type { ElementsType, FormElementInstance } from "../form-types"
 import { getPatternValidator } from "./pattern-select"
 
 type BaseStringAttrs = {
@@ -10,228 +10,319 @@ type BaseStringAttrs = {
   customErrorMessage?: string
 }
 
-function buildStringSchema(attrs: BaseStringAttrs, defaultErrorMessage: string): z.ZodString {
-  let schema = z.string()
+const INPUT_FIELD_TYPES: ElementsType[] = [
+  "TextField",
+  "TextareaField",
+  "NumberField",
+  "DateField",
+  "CheckboxField",
+  "SelectField",
+]
 
-  if (attrs.required) {
-    schema = schema.min(1, {
-      message: attrs.customErrorMessage || defaultErrorMessage,
-    })
+function preprocessString(value: unknown, required: boolean) {
+  if (typeof value !== "string") {
+    return value
   }
 
-  if (attrs.minLength !== undefined) {
-    schema = schema.min(attrs.minLength, {
-      message: attrs.customErrorMessage || `Minimum length is ${attrs.minLength}`,
-    })
+  const trimmed = value.trim()
+
+  if (!required && trimmed === "") {
+    return undefined
   }
 
-  if (attrs.maxLength !== undefined) {
-    schema = schema.max(attrs.maxLength, {
-      message: attrs.customErrorMessage || `Maximum length is ${attrs.maxLength}`,
-    })
-  }
-
-  return schema
+  return trimmed
 }
 
-export const createTextareaFieldSchema = (
+function buildStringSchema(attrs: BaseStringAttrs, defaultErrorMessage: string) {
+  return z
+    .preprocess(
+      (value) => preprocessString(value, attrs.required),
+      attrs.required ? z.string() : z.string().optional(),
+    )
+    .superRefine((value: string | undefined, ctx) => {
+      if (value === undefined) {
+        return
+      }
+
+      if (attrs.required && value.length === 0) {
+        ctx.addIssue({
+          code: "custom",
+          message: attrs.customErrorMessage || defaultErrorMessage,
+        })
+
+        return
+      }
+
+      if (attrs.minLength !== undefined && value.length < attrs.minLength) {
+        ctx.addIssue({
+          code: "too_small",
+          minimum: attrs.minLength,
+          inclusive: true,
+          origin: "string",
+          message: attrs.customErrorMessage || `Minimum length is ${attrs.minLength}`,
+        })
+      }
+
+      if (attrs.maxLength !== undefined && value.length > attrs.maxLength) {
+        ctx.addIssue({
+          code: "too_big",
+          maximum: attrs.maxLength,
+          inclusive: true,
+          origin: "string",
+          message: attrs.customErrorMessage || `Maximum length is ${attrs.maxLength}`,
+        })
+      }
+    })
+}
+
+export function createTextareaFieldSchema(
   attrs: BaseStringAttrs,
   defaultErrorMessage = "This field is required",
-): z.ZodString => buildStringSchema(attrs, defaultErrorMessage)
+) {
+  return buildStringSchema(attrs, defaultErrorMessage)
+}
 
-export const createTextFieldSchema = (
+export function createTextFieldSchema(
   attrs: BaseStringAttrs & {
     pattern?: string
     customPattern?: string
   },
   defaultErrorMessage = "This field is required",
-): z.ZodString => {
-  let schema = buildStringSchema(attrs, defaultErrorMessage)
+) {
+  return buildStringSchema(attrs, defaultErrorMessage).superRefine(
+    (value: string | undefined, ctx) => {
+      if (value === undefined || value === "") {
+        return
+      }
 
-  if (attrs.pattern && attrs.pattern !== "none") {
-    const validator = getPatternValidator(attrs.pattern, attrs.customPattern)
+      if (!attrs.pattern || attrs.pattern === "none") {
+        return
+      }
 
-    if (validator) {
-      schema = schema.refine((val) => !val || validator.safeParse(val).success, {
-        message: attrs.customErrorMessage || "Value does not match the required pattern",
-      }) as any
-    }
-  }
+      const validator = getPatternValidator(attrs.pattern, attrs.customPattern)
 
-  return schema
-}
+      if (!validator) {
+        return
+      }
 
-export const createNumberFieldSchema = (
-  attrs: {
-    required: boolean
-    min?: number
-    max?: number
-    customErrorMessage?: string
-  },
-  defaultErrorMessage = "This field is required",
-): z.ZodString => {
-  let schema = z.string()
+      const result = validator.safeParse(value)
 
-  if (attrs.required) {
-    schema = schema.min(1, {
-      message: attrs.customErrorMessage || defaultErrorMessage,
-    })
-  }
-
-  schema = schema.refine(
-    (val) => {
-      if (!val || val.trim() === "") return true
-      return !isNaN(Number(val))
+      if (!result.success) {
+        ctx.addIssue({
+          code: "custom",
+          message: attrs.customErrorMessage || result.error.issues[0]?.message || "Invalid value",
+        })
+      }
     },
-    {
-      message: attrs.customErrorMessage || "Must be a valid number",
-    },
-  ) as any
-
-  if (attrs.min !== undefined || attrs.max !== undefined) {
-    schema = schema.refine(
-      (val) => {
-        if (!val || val.trim() === "") return true
-
-        const num = Number(val)
-
-        if (isNaN(num)) return false
-        if (attrs.min !== undefined && num < attrs.min) return false
-        if (attrs.max !== undefined && num > attrs.max) return false
-
-        return true
-      },
-      {
-        message:
-          attrs.customErrorMessage ||
-          `Value must be between ${attrs.min ?? "−∞"} and ${attrs.max ?? "∞"}`,
-      },
-    ) as any
-  }
-
-  return schema
+  )
 }
 
-export const createDateFieldSchema = (
-  attrs: {
-    required: boolean
-    minDate?: string
-    maxDate?: string
-    customErrorMessage?: string
-  },
-  defaultErrorMessage = "This field is required",
-): z.ZodString => {
-  let schema = z.string()
+export function createNumberFieldSchema(attrs: {
+  required: boolean
+  min?: number
+  max?: number
+  customErrorMessage?: string
+}) {
+  return z
+    .preprocess(
+      (value) => preprocessString(value, attrs.required),
+      attrs.required ? z.string() : z.string().optional(),
+    )
+    .superRefine((value: string | undefined, ctx) => {
+      if (value === undefined) {
+        return
+      }
 
-  if (attrs.required) {
-    schema = schema.min(1, {
-      message: attrs.customErrorMessage || defaultErrorMessage,
+      if (value.length === 0) {
+        if (attrs.required) {
+          ctx.addIssue({
+            code: "custom",
+            message: attrs.customErrorMessage || "This field is required",
+          })
+        }
+
+        return
+      }
+
+      const num = Number(value)
+
+      if (Number.isNaN(num)) {
+        ctx.addIssue({
+          code: "custom",
+          message: attrs.customErrorMessage || "Must be a valid number",
+        })
+
+        return
+      }
+
+      if (attrs.min !== undefined && num < attrs.min) {
+        ctx.addIssue({
+          code: "custom",
+          message:
+            attrs.customErrorMessage || `Value must be greater than or equal to ${attrs.min}`,
+        })
+
+        return
+      }
+
+      if (attrs.max !== undefined && num > attrs.max) {
+        ctx.addIssue({
+          code: "custom",
+          message: attrs.customErrorMessage || `Value must be less than or equal to ${attrs.max}`,
+        })
+      }
     })
-  }
-
-  if (attrs.minDate || attrs.maxDate) {
-    schema = schema.refine(
-      (val) => {
-        if (!val || val.trim() === "") return true
-
-        const date = new Date(val)
-
-        if (isNaN(date.getTime())) return false
-        if (attrs.minDate && val < attrs.minDate) return false
-        if (attrs.maxDate && val > attrs.maxDate) return false
-
-        return true
-      },
-      {
-        message:
-          attrs.customErrorMessage ||
-          `Date must be between ${attrs.minDate ?? "any"} and ${attrs.maxDate ?? "any"}`,
-      },
-    ) as any
-  }
-
-  return schema
 }
 
-export const createSelectFieldSchema = (
+export function createDateFieldSchema(attrs: {
+  required: boolean
+  minDate?: string
+  maxDate?: string
+  customErrorMessage?: string
+}) {
+  function parseLocalDate(dateString: string) {
+    return new Date(`${dateString}T00:00:00`)
+  }
+
+  return z
+    .preprocess(
+      (value) => preprocessString(value, attrs.required),
+      attrs.required ? z.string() : z.string().optional(),
+    )
+    .superRefine((value: string | undefined, ctx) => {
+      if (value === undefined) {
+        return
+      }
+
+      const currentDate = parseLocalDate(value)
+
+      if (Number.isNaN(currentDate.getTime())) {
+        ctx.addIssue({
+          code: "custom",
+          message: attrs.customErrorMessage || "Invalid date",
+        })
+
+        return
+      }
+
+      if (attrs.minDate) {
+        const minDate = parseLocalDate(attrs.minDate)
+
+        if (currentDate.getTime() < minDate.getTime()) {
+          ctx.addIssue({
+            code: "custom",
+            message: attrs.customErrorMessage || `Date must be after ${attrs.minDate}`,
+          })
+        }
+      }
+
+      if (attrs.maxDate) {
+        const maxDate = parseLocalDate(attrs.maxDate)
+
+        if (currentDate.getTime() > maxDate.getTime()) {
+          ctx.addIssue({
+            code: "custom",
+            message: attrs.customErrorMessage || `Date must be before ${attrs.maxDate}`,
+          })
+        }
+      }
+    })
+}
+
+export function createSelectFieldSchema(
   attrs: {
     required: boolean
     customErrorMessage?: string
   },
   defaultErrorMessage = "Please select an option",
-): z.ZodString => {
-  let schema = z.string()
+) {
+  return z
+    .preprocess(
+      (value) => preprocessString(value, attrs.required),
+      attrs.required ? z.string() : z.string().optional(),
+    )
+    .superRefine((value: string | undefined, ctx) => {
+      if (value === undefined) {
+        return
+      }
 
-  if (attrs.required) {
-    schema = schema.min(1, {
-      message: attrs.customErrorMessage || defaultErrorMessage,
+      if (attrs.required && value.length === 0) {
+        ctx.addIssue({
+          code: "custom",
+          message: attrs.customErrorMessage || defaultErrorMessage,
+        })
+      }
     })
-  }
-
-  return schema
 }
 
-/**
- * NEW
- */
-export function getFieldSchema(element: FormElementInstance): z.ZodString {
-  const extraAttributes = element.extraAttributes as Record<string, unknown>
+export function createCheckboxFieldSchema(attrs: {
+  required: boolean
+  customErrorMessage?: string
+}) {
+  return z.boolean().refine(
+    (value) => {
+      if (!attrs.required) {
+        return true
+      }
 
+      return value === true
+    },
+    {
+      message: attrs.customErrorMessage || "This field is required",
+    },
+  )
+}
+
+export function getFieldSchema(element: FormElementInstance) {
   switch (element.type) {
     case "TextField":
       return createTextFieldSchema({
-        required: (extraAttributes.required as boolean) ?? false,
-        minLength: extraAttributes.minLength as number | undefined,
-        maxLength: extraAttributes.maxLength as number | undefined,
-        pattern: extraAttributes.pattern as string | undefined,
-        customPattern: extraAttributes.customPattern as string | undefined,
-        customErrorMessage: extraAttributes.customErrorMessage as string | undefined,
+        required: element.extraAttributes.required ?? false,
+        minLength: element.extraAttributes.minLength,
+        maxLength: element.extraAttributes.maxLength,
+        pattern: element.extraAttributes.pattern,
+        customPattern: element.extraAttributes.customPattern,
+        customErrorMessage: element.extraAttributes.customErrorMessage,
       })
 
     case "TextareaField":
       return createTextareaFieldSchema({
-        required: (extraAttributes.required as boolean) ?? false,
-        minLength: extraAttributes.minLength as number | undefined,
-        maxLength: extraAttributes.maxLength as number | undefined,
-        customErrorMessage: extraAttributes.customErrorMessage as string | undefined,
+        required: element.extraAttributes.required ?? false,
+        minLength: element.extraAttributes.minLength,
+        maxLength: element.extraAttributes.maxLength,
+        customErrorMessage: element.extraAttributes.customErrorMessage,
       })
 
     case "NumberField":
       return createNumberFieldSchema({
-        required: (extraAttributes.required as boolean) ?? false,
-        min: extraAttributes.min as number | undefined,
-        max: extraAttributes.max as number | undefined,
-        customErrorMessage: extraAttributes.customErrorMessage as string | undefined,
+        required: element.extraAttributes.required ?? false,
+        min: element.extraAttributes.min,
+        max: element.extraAttributes.max,
+        customErrorMessage: element.extraAttributes.customErrorMessage,
       })
 
     case "DateField":
       return createDateFieldSchema({
-        required: (extraAttributes.required as boolean) ?? false,
-        minDate: extraAttributes.minDate as string | undefined,
-        maxDate: extraAttributes.maxDate as string | undefined,
-        customErrorMessage: extraAttributes.customErrorMessage as string | undefined,
+        required: element.extraAttributes.required ?? false,
+        minDate: element.extraAttributes.minDate,
+        maxDate: element.extraAttributes.maxDate,
+        customErrorMessage: element.extraAttributes.customErrorMessage,
       })
 
     case "SelectField":
       return createSelectFieldSchema({
-        required: (extraAttributes.required as boolean) ?? false,
-        customErrorMessage: extraAttributes.customErrorMessage as string | undefined,
+        required: element.extraAttributes.required ?? false,
+        customErrorMessage: element.extraAttributes.customErrorMessage,
       })
 
-    case "CheckboxField": {
-      const isRequired = (extraAttributes.required as boolean) ?? false
-
-      if (isRequired) {
-        return z.string().refine((val) => val === "true", {
-          message: (extraAttributes.customErrorMessage as string) || "This field is required",
-        })
-      }
-
-      return z.string()
-    }
+    case "CheckboxField":
+      return createCheckboxFieldSchema({
+        required: element.extraAttributes.required ?? false,
+        customErrorMessage: element.extraAttributes.customErrorMessage,
+      })
 
     default:
-      return z.string()
+      return z.any()
   }
 }
 
@@ -244,7 +335,13 @@ export function buildFormSchema(
   for (const id of elementOrder) {
     const element = elements[id]
 
-    if (!element) continue
+    if (!element) {
+      continue
+    }
+
+    if (!INPUT_FIELD_TYPES.includes(element.type)) {
+      continue
+    }
 
     shape[id] = getFieldSchema(element)
   }
