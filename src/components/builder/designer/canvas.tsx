@@ -44,8 +44,7 @@ export function Designer() {
           <DropAreaContent elementOrder={elementOrder} isDropTarget={isDropTarget} />
         </div>
       </div>
-
-      <aside className="w-72 shrink-0 overflow-y-auto border-l border-border bg-background">
+      <aside className="flex w-96 shrink-0 flex-col overflow-hidden border-l border-border bg-background">
         <PropertiesSidebar />
       </aside>
     </div>

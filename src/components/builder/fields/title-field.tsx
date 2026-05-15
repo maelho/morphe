@@ -1,11 +1,10 @@
 import { TextHIcon } from "@phosphor-icons/react"
-import { useState } from "react"
 
 import { Form } from "#/components/ui/form"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "#/components/ui/tabs"
 
 import { titleFieldAttributesSchema } from "../form-schemas"
 import type { ElementInstanceOf, FormElement, FormElementInstance } from "../form-types"
-import { SegmentedControl } from "./base-properties"
 import { SelectProperty, StringProperty } from "./property-fields"
 import { useElementForm } from "./use-element-form"
 
@@ -84,12 +83,6 @@ function FormComponent({ elementInstance }: { elementInstance: FormElementInstan
 function PropertiesComponent({ elementInstance }: { elementInstance: FormElementInstance }) {
   const element = elementInstance as TitleFieldInstance
   const form = useElementForm(element, titleFieldAttributesSchema)
-  const [activeTab, setActiveTab] = useState<"content" | "typography">("content")
-
-  const tabs = [
-    { value: "content" as const, label: "Content" },
-    { value: "typography" as const, label: "Typography" },
-  ]
 
   return (
     <Form
@@ -99,80 +92,87 @@ function PropertiesComponent({ elementInstance }: { elementInstance: FormElement
         form.handleSubmit()
       }}
     >
-      <div className="flex min-h-0 flex-col">
-        <SegmentedControl tabs={tabs} value={activeTab} onChange={setActiveTab} />
-        <div className="flex-1 overflow-y-auto pt-4">
-          {activeTab === "content" && (
-            <div className="space-y-4">
-              <form.Field name="title">
-                {(field) => <StringProperty field={field} form={form} label="Title" />}
-              </form.Field>
-            </div>
-          )}
-          {activeTab === "typography" && (
-            <div className="space-y-4">
-              <div className="flex flex-col gap-3">
-                <form.Field name="fontSize">
-                  {(field) => (
-                    <SelectProperty
-                      field={field}
-                      form={form}
-                      label="Font Size"
-                      options={[
-                        { value: "sm", label: "Small" },
-                        { value: "md", label: "Medium" },
-                        { value: "lg", label: "Large" },
-                        { value: "xl", label: "Extra Large" },
-                      ]}
-                    />
-                  )}
-                </form.Field>
-                <form.Field name="fontWeight">
-                  {(field) => (
-                    <SelectProperty
-                      field={field}
-                      form={form}
-                      label="Font Weight"
-                      options={[
-                        { value: "normal", label: "Normal" },
-                        { value: "medium", label: "Medium" },
-                        { value: "bold", label: "Bold" },
-                      ]}
-                    />
-                  )}
-                </form.Field>
-              </div>
+      <Tabs defaultValue="content" className="flex min-h-0 flex-col">
+        <TabsList className="w-full">
+          <TabsTrigger value="content" className="flex-1">
+            Content
+          </TabsTrigger>
+          <TabsTrigger value="typography" className="flex-1">
+            Typography
+          </TabsTrigger>
+        </TabsList>
 
-              <form.Field name="alignment">
+        <TabsContent value="content" className="flex-1 overflow-y-auto pt-4">
+          <div className="space-y-4">
+            <form.Field name="title">
+              {(field) => <StringProperty field={field} form={form} label="Title" />}
+            </form.Field>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="typography" className="flex-1 overflow-y-auto pt-4">
+          <div className="space-y-4">
+            <div className="flex flex-col gap-3">
+              <form.Field name="fontSize">
                 {(field) => (
                   <SelectProperty
                     field={field}
                     form={form}
-                    label="Alignment"
+                    label="Font Size"
                     options={[
-                      { value: "left", label: "Left" },
-                      { value: "center", label: "Center" },
-                      { value: "right", label: "Right" },
+                      { value: "sm", label: "Small" },
+                      { value: "md", label: "Medium" },
+                      { value: "lg", label: "Large" },
+                      { value: "xl", label: "Extra Large" },
                     ]}
                   />
                 )}
               </form.Field>
-
-              <form.Field name="color">
+              <form.Field name="fontWeight">
                 {(field) => (
-                  <StringProperty
+                  <SelectProperty
                     field={field}
                     form={form}
-                    label="Color"
-                    placeholder="#000000 or red"
-                    description="Hex color or named color"
+                    label="Font Weight"
+                    options={[
+                      { value: "normal", label: "Normal" },
+                      { value: "medium", label: "Medium" },
+                      { value: "bold", label: "Bold" },
+                    ]}
                   />
                 )}
               </form.Field>
             </div>
-          )}
-        </div>
-      </div>
+
+            <form.Field name="alignment">
+              {(field) => (
+                <SelectProperty
+                  field={field}
+                  form={form}
+                  label="Alignment"
+                  options={[
+                    { value: "left", label: "Left" },
+                    { value: "center", label: "Center" },
+                    { value: "right", label: "Right" },
+                  ]}
+                />
+              )}
+            </form.Field>
+
+            <form.Field name="color">
+              {(field) => (
+                <StringProperty
+                  field={field}
+                  form={form}
+                  label="Color"
+                  placeholder="#000000 or red"
+                  description="Hex color or named color"
+                />
+              )}
+            </form.Field>
+          </div>
+        </TabsContent>
+      </Tabs>
     </Form>
   )
 }

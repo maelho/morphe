@@ -23,9 +23,8 @@ export function PropertiesSidebar() {
       <div className="flex items-center gap-2 border-b border-border/50 px-4 py-3">
         <PencilSimpleIcon className="size-4 text-muted-foreground" weight="bold" />
         <span className="text-sm font-medium">Properties</span>
-        <span className="text-xs text-muted-foreground">- {editingElement.type}</span>
       </div>
-      <div className="flex-1 overflow-y-auto p-5">
+      <div className="flex min-h-0 flex-1 flex-col overflow-y-auto p-4">
         <PropertiesPanel element={editingElement} />
       </div>
     </div>

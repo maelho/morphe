@@ -26,7 +26,7 @@ const defaultOptions = [
 ]
 
 const defaultAttributes: SelectFieldInstance["extraAttributes"] = {
-  label: "Dropdown",
+  label: "Select",
   placeholder: "Choose an option",
   helperText: "",
   required: false,
@@ -153,18 +153,21 @@ function PropertiesComponent({ elementInstance }: { elementInstance: FormElement
     >
       <BaseProperties form={form}>
         <form.Field name="options">
-          {(field) => (
-            <OptionsEditor
-              value={field.state.value.map((opt: { value: string; label: string }, i: number) => ({
-                ...opt,
-                id: `opt-${i}`,
-              }))}
-              onChange={(options) => {
-                field.handleChange(options.map(({ id: _, ...rest }) => rest))
-                form.handleSubmit()
-              }}
-            />
-          )}
+          {(field) => {
+            const options = Array.isArray(field.state.value) ? field.state.value : []
+            return (
+              <OptionsEditor
+                value={options.map((opt: { value: string; label: string }, i: number) => ({
+                  ...opt,
+                  id: `opt-${i}`,
+                }))}
+                onChange={(options) => {
+                  field.handleChange(options.map(({ id: _, ...rest }) => rest))
+                  form.handleSubmit()
+                }}
+              />
+            )
+          }}
         </form.Field>
         <form.Field name="allowClear">
           {(field) => (
