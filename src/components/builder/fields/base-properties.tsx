@@ -2,6 +2,7 @@ import type { ReactNode } from "react"
 import { useState } from "react"
 
 import { cn } from "#/lib/utils"
+
 import { StringProperty, SwitchProperty } from "./property-fields"
 
 type BasePropertiesProps = {

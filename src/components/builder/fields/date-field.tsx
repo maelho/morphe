@@ -5,7 +5,12 @@ import { Form } from "#/components/ui/form"
 import { Input } from "#/components/ui/input"
 
 import { dateFieldAttributesSchema } from "../form-schemas"
-import type { ElementInstanceOf, FormElement, FormElementInstance, SubmitFunction } from "../form-types"
+import type {
+  ElementInstanceOf,
+  FormElement,
+  FormElementInstance,
+  SubmitFunction,
+} from "../form-types"
 import { BaseProperties } from "./base-properties"
 import { DateProperty } from "./property-fields"
 import { useElementForm } from "./use-element-form"
@@ -108,7 +113,9 @@ function FormComponent({
         <FieldDescription>{extraAttributes.helperText}</FieldDescription>
       )}
       {isInvalid && (
-        <FieldError>{errorMessage || extraAttributes.customErrorMessage || "This field is required"}</FieldError>
+        <FieldError>
+          {errorMessage || extraAttributes.customErrorMessage || "This field is required"}
+        </FieldError>
       )}
     </Field>
   )

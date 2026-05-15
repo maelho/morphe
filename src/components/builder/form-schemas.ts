@@ -153,3 +153,15 @@ export const FormContentSchema = z.array(FormElementInstanceSchema)
 
 export type NamedPattern = z.infer<typeof namedPatternSchema>
 export type SelectOption = z.infer<typeof selectOptionSchema>
+
+export type TitleFieldAttributes = z.infer<typeof titleFieldAttributesSchema>
+export type SubtitleFieldAttributes = z.infer<typeof subtitleFieldAttributesSchema>
+export type ParagraphFieldAttributes = z.infer<typeof paragraphFieldAttributesSchema>
+export type TextFieldAttributes = z.infer<typeof textFieldAttributesSchema>
+export type TextareaFieldAttributes = z.infer<typeof textareaFieldAttributesSchema>
+export type NumberFieldAttributes = z.infer<typeof numberFieldAttributesSchema>
+export type DateFieldAttributes = z.infer<typeof dateFieldAttributesSchema>
+export type CheckboxFieldAttributes = z.infer<typeof checkboxFieldAttributesSchema>
+export type SelectFieldAttributes = z.infer<typeof selectFieldAttributesSchema>
+export type SeparatorFieldAttributes = z.infer<typeof separatorFieldAttributesSchema>
+export type SpacerFieldAttributes = z.infer<typeof spacerFieldAttributesSchema>

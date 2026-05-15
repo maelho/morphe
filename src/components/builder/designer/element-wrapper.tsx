@@ -111,7 +111,7 @@ const ElementBody = memo(function ElementBody({
       }}
       className={cn(
         "group relative flex min-h-12 flex-col rounded-xl border border-transparent transition-all duration-200",
-        "touch-none select-none cursor-pointer",
+        "cursor-pointer touch-none select-none",
         isSelected && "border-foreground/40 ring-1 ring-foreground/10",
         dropIndicator === "top" && "mt-2",
         dropIndicator === "bottom" && "mb-2",
@@ -143,7 +143,10 @@ export function DesignerElementWrapper({ elementId }: { elementId: string }) {
     [elementId],
   )
 
-  const handleRemove = useCallback(() => designerStore.actions.removeElement(elementId), [elementId])
+  const handleRemove = useCallback(
+    () => designerStore.actions.removeElement(elementId),
+    [elementId],
+  )
 
   if (!element) return null
 
