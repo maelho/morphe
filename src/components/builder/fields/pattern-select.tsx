@@ -1,3 +1,4 @@
+import type { ReactElement } from "react"
 import { z } from "zod"
 
 import { Field, FieldDescription, FieldLabel } from "#/components/ui/field"
@@ -39,7 +40,7 @@ export function PatternSelect({
   onChange,
   label = "Pattern",
   description,
-}: PatternSelectProps): React.ReactElement {
+}: PatternSelectProps): ReactElement {
   const isCustom = value === "custom"
   const customValid = isValidRegex(customValue)
 

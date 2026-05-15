@@ -71,6 +71,14 @@ export const createNumberFieldSchema = (
     })
   }
 
+  schema = schema.refine(
+    (val) => {
+      if (!val || val.trim() === "") return true
+      return !isNaN(Number(val))
+    },
+    { message: attrs.customErrorMessage || "Must be a valid number" },
+  )
+
   if (attrs.min !== undefined || attrs.max !== undefined) {
     return schema.refine(
       (val) => {

@@ -1,4 +1,5 @@
 import { CheckSquareIcon } from "@phosphor-icons/react"
+import { useState } from "react"
 
 import { Checkbox } from "#/components/ui/checkbox"
 import { Field, FieldDescription, FieldError, FieldLabel } from "#/components/ui/field"
@@ -69,12 +70,15 @@ function FormComponent({
   defaultValue?: string
 }) {
   const { extraAttributes } = elementInstance as CheckboxFieldInstance
+  const [checked, setChecked] = useState(defaultValue === CHECKED_VALUE)
+
   return (
     <Field>
       <FieldLabel className="flex items-center gap-2 font-normal">
         <Checkbox
           disabled={extraAttributes.disabled}
-          defaultChecked={defaultValue === CHECKED_VALUE}
+          checked={checked}
+          onCheckedChange={setChecked}
           className="mr-2"
         />
         {extraAttributes.label}

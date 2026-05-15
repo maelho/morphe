@@ -2,10 +2,10 @@ import { TextTIcon } from "@phosphor-icons/react"
 import { useState } from "react"
 
 import { Form } from "#/components/ui/form"
-import { cn } from "#/lib/utils"
 
 import { subtitleFieldAttributesSchema } from "../form-schemas"
 import type { ElementInstanceOf, FormElement, FormElementInstance } from "../form-types"
+import { SegmentedControl } from "./base-properties"
 import { SelectProperty, StringProperty } from "./property-fields"
 import { useElementForm } from "./use-element-form"
 
@@ -79,46 +79,14 @@ function FormComponent({ elementInstance }: { elementInstance: FormElementInstan
   )
 }
 
-type TabValue = "content" | "typography"
-
-function SegmentedControl({
-  tabs,
-  value,
-  onChange,
-}: {
-  tabs: { value: TabValue; label: string }[]
-  value: TabValue
-  onChange: (value: TabValue) => void
-}) {
-  return (
-    <div className="flex w-full rounded-md bg-muted/50 p-0.5 text-xs">
-      {tabs.map((tab) => (
-        <button
-          key={tab.value}
-          type="button"
-          onClick={() => onChange(tab.value)}
-          className={cn(
-            "flex-1 rounded-sm px-2 py-1.5 font-medium transition-colors",
-            value === tab.value
-              ? "bg-background text-foreground shadow-sm"
-              : "text-muted-foreground hover:text-foreground",
-          )}
-        >
-          {tab.label}
-        </button>
-      ))}
-    </div>
-  )
-}
-
 function PropertiesComponent({ elementInstance }: { elementInstance: FormElementInstance }) {
   const element = elementInstance as SubtitleFieldInstance
   const form = useElementForm(element, subtitleFieldAttributesSchema)
-  const [activeTab, setActiveTab] = useState<TabValue>("content")
+  const [activeTab, setActiveTab] = useState<"content" | "typography">("content")
 
   const tabs = [
-    { value: "content" as TabValue, label: "Content" },
-    { value: "typography" as TabValue, label: "Typography" },
+    { value: "content" as const, label: "Content" },
+    { value: "typography" as const, label: "Typography" },
   ]
 
   return (

@@ -89,9 +89,7 @@ export function NumberProperty({
         min={min}
         max={max}
         onValueChange={(value) => {
-          if (value != null) {
-            field.handleChange(value)
-          }
+          field.handleChange(value ?? undefined)
           field.handleBlur()
           form.handleSubmit()
         }}

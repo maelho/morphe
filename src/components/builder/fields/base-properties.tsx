@@ -16,14 +16,14 @@ type BasePropertiesProps = {
 
 type TabValue = "content" | "validation" | "advanced" | "options"
 
-function SegmentedControl({
+export function SegmentedControl<T extends string>({
   tabs,
   value,
   onChange,
 }: {
-  tabs: { value: TabValue; label: string }[]
-  value: TabValue
-  onChange: (value: TabValue) => void
+  tabs: { value: T; label: string }[]
+  value: T
+  onChange: (value: T) => void
 }) {
   return (
     <div className="flex w-full rounded-md bg-muted/50 p-0.5 text-xs">

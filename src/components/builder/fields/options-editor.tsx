@@ -1,6 +1,6 @@
 import { PlusIcon, TrashIcon } from "@phosphor-icons/react"
-import type React from "react"
-import { useId } from "react"
+import type { ReactElement } from "react"
+import { useId, useRef } from "react"
 
 import { Button } from "#/components/ui/button"
 import { Field, FieldLabel } from "#/components/ui/field"
@@ -22,11 +22,13 @@ export function OptionsEditor({
   value,
   onChange,
   label = "Options",
-}: OptionsEditorProps): React.ReactElement {
+}: OptionsEditorProps): ReactElement {
   const uid = useId()
+  const counter = useRef(0)
 
   const addOption = () => {
-    const n = value.length + 1
+    counter.current++
+    const n = counter.current
     onChange([...value, { id: `${uid}-option-${n}`, value: `option${n}`, label: `Option ${n}` }])
   }
 
