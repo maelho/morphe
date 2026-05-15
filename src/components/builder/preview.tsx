@@ -8,11 +8,11 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "../ui/dialog"
-import { useDesignerElement, useDesignerElements } from "./designer/store"
+import { useDesignerElement, useDesignerOrder } from "./designer/store"
 import { FormElements } from "./fields/registry"
 
 export default function FormBuilderPreviewButton() {
-  const elementOrder = useDesignerElements()
+  const elementOrder = useDesignerOrder()
   return (
     <Dialog>
       <DialogTrigger render={<Button />}>Preview</DialogTrigger>

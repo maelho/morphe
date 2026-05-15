@@ -5,7 +5,7 @@ import { useCallback } from "react"
 
 import { FormElements } from "../fields/registry"
 import type { ElementsType } from "../form-types"
-import { designerStore, designerStoreActions } from "./store"
+import { designerStore } from "./store"
 
 export function useDesignerDragDrop() {
   const onDragEnd = useCallback((event: DragEndEvent) => {
@@ -24,7 +24,7 @@ export function useDesignerDragDrop() {
 
     if (isButton && overArea) {
       const newElement = FormElements[src.type as ElementsType].construct(nanoid(5))
-      designerStoreActions.addElement(currentOrder.length, newElement)
+      designerStore.actions.addElement(currentOrder.length, newElement)
       return
     }
 
@@ -33,12 +33,12 @@ export function useDesignerDragDrop() {
       const overIndex = currentOrder.indexOf(tgt.elementId)
       if (overIndex === -1) throw new Error("element not found")
       const index = tgt.isBottomHalfDesignerElement ? overIndex + 1 : overIndex
-      designerStoreActions.addElement(index, newElement)
+      designerStore.actions.addElement(index, newElement)
       return
     }
 
     if (isElement && overEl) {
-      designerStoreActions.moveElement(
+      designerStore.actions.moveElement(
         src.elementId,
         tgt.elementId,
         tgt.isBottomHalfDesignerElement,

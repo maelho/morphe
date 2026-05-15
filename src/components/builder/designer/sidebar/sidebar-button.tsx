@@ -5,11 +5,11 @@ import { cn } from "#/lib/utils"
 
 import { FormElements } from "../../fields/registry"
 import type { ElementsType } from "../../form-types"
-import { designerStoreActions, useDesignerElements } from "../store"
+import { designerStore, useDesignerOrder } from "../store"
 
 export function ElementSidebarButton({ type }: { type: ElementsType }) {
   const { label, icon: Icon } = FormElements[type].designerButtonElement
-  const order = useDesignerElements()
+  const order = useDesignerOrder()
 
   const { ref } = useDraggable({
     id: `designer-button-${type}`,
@@ -18,7 +18,7 @@ export function ElementSidebarButton({ type }: { type: ElementsType }) {
 
   const handleClick = () => {
     const newElement = FormElements[type].construct(nanoid(5))
-    designerStoreActions.addElement(order.length, newElement)
+    designerStore.actions.addElement(order.length, newElement)
   }
 
   return (

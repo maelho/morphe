@@ -7,7 +7,7 @@ import { cn } from "#/lib/utils"
 
 import { FormElements } from "../fields/registry"
 import type { FormElementInstance } from "../form-types"
-import { designerStoreActions, useDesignerElement, useIsSelected } from "./store"
+import { designerStore, useDesignerElement, useIsSelected } from "./store"
 import { useElementDragDrop } from "./use-element-drag-drop"
 
 type DragDropState = {
@@ -139,11 +139,11 @@ export function DesignerElementWrapper({ elementId }: { elementId: string }) {
   const dragDrop = useElementDragDrop(elementId, element?.type, isSelected)
 
   const handleSelect = useCallback(
-    () => designerStoreActions.openProperties(elementId),
+    () => designerStore.actions.openProperties(elementId),
     [elementId],
   )
 
-  const handleRemove = useCallback(() => designerStoreActions.removeElement(elementId), [elementId])
+  const handleRemove = useCallback(() => designerStore.actions.removeElement(elementId), [elementId])
 
   if (!element) return null
 

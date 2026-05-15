@@ -4,36 +4,69 @@ import { useEffect, useRef, useState } from "react"
 
 import { Designer } from "#/components/builder/designer/canvas"
 import { DragOverlayWrapper } from "#/components/builder/designer/overlay"
-import { designerStoreActions, designerStoreFormActions } from "#/components/builder/designer/store"
+import { loadFromStorage, useDesignerPersistence } from "#/components/builder/designer/use-designer-persistence"
+import { designerStore } from "#/components/builder/designer/store"
 import { parseFormContent } from "#/components/builder/form-utils"
 import { Spinner } from "#/components/ui/spinner"
 import type { Form } from "#/generated/prisma/client"
 
 export default function FormBuilder({ form }: { form: Form }) {
+  useDesignerPersistence(designerStore)
+
   const [isReady, setIsReady] = useState(false)
+  const loadedRef = useRef(false)
   const mountedRef = useRef(true)
 
   useEffect(() => {
+    if (loadedRef.current) return
+    loadedRef.current = true
     mountedRef.current = true
 
-    designerStoreFormActions.setFormInfo(form.id, form.name)
+    designerStore.actions.setFormInfo(form.id, form.name)
+    designerStore.actions.setSelectedElement(null)
 
-    designerStoreActions.setSelectedElement(null)
-    try {
-      designerStoreActions.setElements(parseFormContent(form.content))
-    } catch (err) {
-      console.error("Failed to load form content:", err)
-      designerStoreActions.setElements([])
+    const saved = loadFromStorage(form.id)
+    if (saved && saved.elements && Object.keys(saved.elements).length > 0) {
+      const elements = Object.values(saved.elements)
+      designerStore.actions.setElements(elements)
+    } else {
+      try {
+        designerStore.actions.setElements(parseFormContent(form.content))
+      } catch (err) {
+        console.error("Failed to load form content:", err)
+        designerStore.actions.setElements([])
+      }
     }
 
     Promise.resolve().then(() => setIsReady(true))
 
     return () => {
       mountedRef.current = false
-      designerStoreActions.clearElements()
-      designerStoreFormActions.clearFormInfo()
+      designerStore.actions.clearElements()
+      designerStore.actions.clearFormInfo()
     }
   }, [form])
+
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      const isMac = navigator.platform.toUpperCase().indexOf("MAC") >= 0
+      const isCtrl = isMac ? e.metaKey : e.ctrlKey
+
+      if (isCtrl && e.key === "z" && !e.shiftKey) {
+        e.preventDefault()
+        designerStore.actions.undo()
+      } else if (isCtrl && e.key === "z" && e.shiftKey) {
+        e.preventDefault()
+        designerStore.actions.redo()
+      } else if (isCtrl && e.key === "y") {
+        e.preventDefault()
+        designerStore.actions.redo()
+      }
+    }
+
+    document.addEventListener("keydown", handleKeyDown)
+    return () => document.removeEventListener("keydown", handleKeyDown)
+  }, [])
 
   if (!isReady)
     return (

@@ -5,11 +5,11 @@ import { cn } from "#/lib/utils"
 import { DropAreaContent } from "./drop-area"
 import { DesignerSidebar } from "./sidebar/shell"
 import { PropertiesSidebar } from "./sidebar/properties-sidebar"
-import { designerStoreActions, useDesignerElements } from "./store"
+import { designerStore, useDesignerOrder } from "./store"
 import { useDesignerDragDrop } from "./use-drag-drop"
 
 export function Designer() {
-  const elementOrder = useDesignerElements()
+  const elementOrder = useDesignerOrder()
   useDesignerDragDrop()
 
   const { ref, isDropTarget } = useDroppable({
@@ -18,8 +18,8 @@ export function Designer() {
   })
 
   const handleDeselect = () => {
-    designerStoreActions.setSelectedElement(null)
-    designerStoreActions.closeProperties()
+    designerStore.actions.setSelectedElement(null)
+    designerStore.actions.closeProperties()
   }
 
   return (
