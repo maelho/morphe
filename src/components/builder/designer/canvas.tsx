@@ -1,16 +1,15 @@
 import { useDroppable } from "@dnd-kit/react"
 
-import { Sidebar, SidebarInset, SidebarProvider } from "#/components/ui/sidebar"
 import { cn } from "#/lib/utils"
 
 import { DropAreaContent } from "./drop-area"
-import { DesignerInspector } from "./inspector"
+import { PropertiesSidebar } from "./sidebar/properties-sidebar"
 import { DesignerSidebar } from "./sidebar/shell"
-import { designerStoreActions, useDesignerElements } from "./store"
+import { designerStore, useDesignerOrder } from "./store"
 import { useDesignerDragDrop } from "./use-drag-drop"
 
-export function Designer({ formName }: { formName: string }) {
-  const elementOrder = useDesignerElements()
+export function Designer() {
+  const elementOrder = useDesignerOrder()
   useDesignerDragDrop()
 
   const { ref, isDropTarget } = useDroppable({
@@ -19,34 +18,36 @@ export function Designer({ formName }: { formName: string }) {
   })
 
   const handleDeselect = () => {
-    designerStoreActions.setSelectedElement(null)
-    designerStoreActions.closeProperties()
+    designerStore.actions.setSelectedElement(null)
+    designerStore.actions.closeProperties()
   }
 
   return (
-    <SidebarProvider defaultOpen>
-      <Sidebar collapsible="icon" variant="inset">
-        <DesignerSidebar formName={formName} />
-      </Sidebar>
-      <SidebarInset className="bg-background">
-        <div className="flex h-full w-full min-w-0 flex-col overflow-hidden">
-          <div className="relative h-full w-full grow overflow-y-auto p-4 md:p-8">
-            <div
-              ref={ref}
-              role="presentation"
-              className={cn(
-                "m-auto flex min-h-full w-full max-w-xl flex-1 grow flex-col items-center justify-start rounded-2xl border border-border/70 bg-card/80 p-8 shadow-xs/5 transition-all duration-300",
-                isDropTarget && "border-foreground/30 bg-card/90",
-              )}
-              onClick={handleDeselect}
-              onKeyDown={(e) => e.key === "Escape" && handleDeselect()}
-            >
-              <DropAreaContent elementOrder={elementOrder} isDropTarget={isDropTarget} />
-            </div>
-          </div>
+    <div className="flex w-full flex-1 overflow-hidden">
+      <aside className="w-64 shrink-0 overflow-y-auto border-r border-border bg-background">
+        <DesignerSidebar />
+      </aside>
+
+      <div
+        role="presentation"
+        onClick={handleDeselect}
+        onKeyDown={(e) => e.key === "Escape" && handleDeselect()}
+        className="flex flex-1 justify-center overflow-y-auto p-8"
+      >
+        <div
+          ref={ref}
+          className={cn(
+            "h-200 w-full max-w-xl rounded-2xl border border-border/70 bg-card/80 p-8 shadow-xs/5 transition-all duration-300",
+            isDropTarget && "border-foreground/30 bg-card/90",
+          )}
+        >
+          <DropAreaContent elementOrder={elementOrder} isDropTarget={isDropTarget} />
         </div>
-      </SidebarInset>
-      <DesignerInspector />
-    </SidebarProvider>
+      </div>
+
+      <aside className="w-72 shrink-0 overflow-y-auto border-l border-border bg-background">
+        <PropertiesSidebar />
+      </aside>
+    </div>
   )
 }

@@ -4,7 +4,6 @@ import { Form } from "#/components/ui/form"
 
 import { spacerFieldAttributesSchema } from "../form-schemas"
 import type { ElementInstanceOf, FormElement, FormElementInstance } from "../form-types"
-import { CollapsibleSection } from "./collapsible-section"
 import { NumberProperty } from "./property-fields"
 import { useElementForm } from "./use-element-form"
 
@@ -34,9 +33,16 @@ export const SpacerFieldFormElement: FormElement = {
 function DesignerComponent({ elementInstance }: { elementInstance: FormElementInstance }) {
   const { extraAttributes } = elementInstance as SpacerFieldInstance
   return (
-    <div className="flex w-full items-center gap-2 text-sm text-muted-foreground">
-      <ArrowsOutLineVerticalIcon className="size-4 shrink-0" />
-      <span>Spacer ({extraAttributes.height}px)</span>
+    <div className="flex w-full flex-col items-center justify-center gap-1 py-1">
+      <div
+        className="flex w-full items-center justify-center rounded border border-dashed border-border/60 bg-muted/20"
+        style={{ height: Math.max(extraAttributes.height, 20) }}
+      >
+        <div className="flex items-center gap-1.5 text-xs text-muted-foreground/50">
+          <ArrowsOutLineVerticalIcon className="size-3" />
+          <span>{extraAttributes.height}px</span>
+        </div>
+      </div>
     </div>
   )
 }
@@ -58,20 +64,23 @@ function PropertiesComponent({ elementInstance }: { elementInstance: FormElement
         form.handleSubmit()
       }}
     >
-      <CollapsibleSection title="Size">
-        <form.Field name="height">
-          {(field) => (
-            <NumberProperty
-              field={field}
-              form={form}
-              label="Height (px)"
-              min={4}
-              max={200}
-              description="Space height in pixels (4-200)"
-            />
-          )}
-        </form.Field>
-      </CollapsibleSection>
+      <div className="flex min-h-0 flex-col">
+        <div className="space-y-4">
+          <form.Field name="height">
+            {(field) => (
+              <NumberProperty
+                field={field}
+                form={form}
+                label="Height (px)"
+                min={4}
+                max={200}
+                defaultValue={24}
+                description="Space height in pixels (4-200)"
+              />
+            )}
+          </form.Field>
+        </div>
+      </div>
     </Form>
   )
 }

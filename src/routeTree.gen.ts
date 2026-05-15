@@ -9,18 +9,13 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as TestbuilderRouteImport } from './routes/testbuilder'
 import { Route as AuthRouteImport } from './routes/_auth'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthTestbuilderRouteImport } from './routes/_auth.testbuilder'
 import { Route as AuthDashboardRouteImport } from './routes/_auth.dashboard'
 import { Route as ApiAuthSplatRouteImport } from './routes/api.auth.$'
 import { Route as AuthBuilderIdRouteImport } from './routes/_auth.builder.$id'
 
-const TestbuilderRoute = TestbuilderRouteImport.update({
-  id: '/testbuilder',
-  path: '/testbuilder',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const AuthRoute = AuthRouteImport.update({
   id: '/_auth',
   getParentRoute: () => rootRouteImport,
@@ -29,6 +24,11 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AuthTestbuilderRoute = AuthTestbuilderRouteImport.update({
+  id: '/testbuilder',
+  path: '/testbuilder',
+  getParentRoute: () => AuthRoute,
 } as any)
 const AuthDashboardRoute = AuthDashboardRouteImport.update({
   id: '/dashboard',
@@ -48,15 +48,15 @@ const AuthBuilderIdRoute = AuthBuilderIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/testbuilder': typeof TestbuilderRoute
   '/dashboard': typeof AuthDashboardRoute
+  '/testbuilder': typeof AuthTestbuilderRoute
   '/builder/$id': typeof AuthBuilderIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/testbuilder': typeof TestbuilderRoute
   '/dashboard': typeof AuthDashboardRoute
+  '/testbuilder': typeof AuthTestbuilderRoute
   '/builder/$id': typeof AuthBuilderIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
@@ -64,8 +64,8 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_auth': typeof AuthRouteWithChildren
-  '/testbuilder': typeof TestbuilderRoute
   '/_auth/dashboard': typeof AuthDashboardRoute
+  '/_auth/testbuilder': typeof AuthTestbuilderRoute
   '/_auth/builder/$id': typeof AuthBuilderIdRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
@@ -73,18 +73,18 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/testbuilder'
     | '/dashboard'
+    | '/testbuilder'
     | '/builder/$id'
     | '/api/auth/$'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/testbuilder' | '/dashboard' | '/builder/$id' | '/api/auth/$'
+  to: '/' | '/dashboard' | '/testbuilder' | '/builder/$id' | '/api/auth/$'
   id:
     | '__root__'
     | '/'
     | '/_auth'
-    | '/testbuilder'
     | '/_auth/dashboard'
+    | '/_auth/testbuilder'
     | '/_auth/builder/$id'
     | '/api/auth/$'
   fileRoutesById: FileRoutesById
@@ -92,19 +92,11 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthRoute: typeof AuthRouteWithChildren
-  TestbuilderRoute: typeof TestbuilderRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/testbuilder': {
-      id: '/testbuilder'
-      path: '/testbuilder'
-      fullPath: '/testbuilder'
-      preLoaderRoute: typeof TestbuilderRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/_auth': {
       id: '/_auth'
       path: ''
@@ -118,6 +110,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_auth/testbuilder': {
+      id: '/_auth/testbuilder'
+      path: '/testbuilder'
+      fullPath: '/testbuilder'
+      preLoaderRoute: typeof AuthTestbuilderRouteImport
+      parentRoute: typeof AuthRoute
     }
     '/_auth/dashboard': {
       id: '/_auth/dashboard'
@@ -145,11 +144,13 @@ declare module '@tanstack/react-router' {
 
 interface AuthRouteChildren {
   AuthDashboardRoute: typeof AuthDashboardRoute
+  AuthTestbuilderRoute: typeof AuthTestbuilderRoute
   AuthBuilderIdRoute: typeof AuthBuilderIdRoute
 }
 
 const AuthRouteChildren: AuthRouteChildren = {
   AuthDashboardRoute: AuthDashboardRoute,
+  AuthTestbuilderRoute: AuthTestbuilderRoute,
   AuthBuilderIdRoute: AuthBuilderIdRoute,
 }
 
@@ -158,7 +159,6 @@ const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthRoute: AuthRouteWithChildren,
-  TestbuilderRoute: TestbuilderRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
 }
 export const routeTree = rootRouteImport

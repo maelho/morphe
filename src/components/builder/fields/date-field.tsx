@@ -5,7 +5,7 @@ import { Form } from "#/components/ui/form"
 import { Input } from "#/components/ui/input"
 
 import { dateFieldAttributesSchema } from "../form-schemas"
-import type { ElementInstanceOf, FormElement, FormElementInstance } from "../form-types"
+import type { ElementInstanceOf, FormElement, FormElementInstance, SubmitFunction } from "../form-types"
 import { BaseProperties } from "./base-properties"
 import { DateProperty } from "./property-fields"
 import { useElementForm } from "./use-element-form"
@@ -48,9 +48,18 @@ export const DateFieldFormElement: FormElement = {
 function DesignerComponent({ elementInstance }: { elementInstance: FormElementInstance }) {
   const { extraAttributes } = elementInstance as DateFieldInstance
   return (
-    <div className="flex w-full items-center gap-2 text-sm text-muted-foreground">
-      <CalendarIcon className="size-4 shrink-0" />
-      <span className="truncate">{extraAttributes.label || "Date Picker"}</span>
+    <div className="flex w-full flex-col gap-2 py-1">
+      <span className="text-sm font-medium text-foreground">
+        {extraAttributes.label || "Date Picker"}
+        {extraAttributes.required && <span className="ml-1 text-destructive">*</span>}
+      </span>
+      <div className="flex h-9 w-full items-center justify-between rounded-lg border border-border bg-muted/40 px-3">
+        <span className="text-sm text-muted-foreground/60">mm/dd/yyyy</span>
+        <CalendarIcon className="size-3.5 text-muted-foreground/40" />
+      </div>
+      {extraAttributes.helperText && (
+        <span className="text-xs text-muted-foreground">{extraAttributes.helperText}</span>
+      )}
     </div>
   )
 }
@@ -58,13 +67,26 @@ function DesignerComponent({ elementInstance }: { elementInstance: FormElementIn
 function FormComponent({
   elementInstance,
   isInvalid,
-  defaultValue,
+  value,
+  submitValue,
+  errorMessage,
+  onBlur,
 }: {
   elementInstance: FormElementInstance
   isInvalid?: boolean
-  defaultValue?: string
+  value?: string
+  submitValue?: SubmitFunction
+  errorMessage?: string
+  onBlur?: () => void
 }) {
   const { extraAttributes } = elementInstance as DateFieldInstance
+  const elementId = elementInstance.id
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (submitValue) {
+      submitValue(elementId, e.target.value)
+    }
+  }
 
   return (
     <Field>
@@ -74,17 +96,19 @@ function FormComponent({
       </FieldLabel>
       <Input
         type="date"
-        defaultValue={defaultValue}
+        value={value}
         aria-invalid={isInvalid}
         disabled={extraAttributes.disabled}
         min={extraAttributes.minDate}
         max={extraAttributes.maxDate}
+        onChange={handleChange}
+        onBlur={onBlur}
       />
       {extraAttributes.helperText && (
         <FieldDescription>{extraAttributes.helperText}</FieldDescription>
       )}
       {isInvalid && (
-        <FieldError>{extraAttributes.customErrorMessage || "This field is required"}</FieldError>
+        <FieldError>{errorMessage || extraAttributes.customErrorMessage || "This field is required"}</FieldError>
       )}
     </Field>
   )

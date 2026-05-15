@@ -5,7 +5,7 @@ import { Drawer, DrawerClose, DrawerPanel, DrawerPopup, DrawerTitle } from "#/co
 import { useIsMobile } from "#/hooks/use-media-query"
 
 import { PropertiesPanel } from "./properties-panel"
-import { designerStoreActions, useEditingElement } from "./store"
+import { designerStore, useEditingElement } from "./store"
 
 export function DesignerInspector() {
   const anchorElement = useEditingElement()
@@ -19,7 +19,7 @@ export function DesignerInspector() {
     <Drawer
       open={Boolean(anchorElement)}
       onOpenChange={(open) => {
-        if (!open) designerStoreActions.closeProperties()
+        if (!open) designerStore.actions.closeProperties()
       }}
       position="bottom"
     >

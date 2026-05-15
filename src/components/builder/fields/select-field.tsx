@@ -1,15 +1,17 @@
-// oxlint-disable react/no-children-prop
-import { ListIcon } from "@phosphor-icons/react"
+import { CaretDownIcon, ListIcon } from "@phosphor-icons/react"
 
-import { Field, FieldDescription, FieldError, FieldLabel } from "#/components/ui/field"
+import { Field, FieldDescription, FieldLabel } from "#/components/ui/field"
 import { Form } from "#/components/ui/form"
 import { Select, SelectItem, SelectPopup, SelectTrigger, SelectValue } from "#/components/ui/select"
-import { Separator } from "#/components/ui/separator"
 
 import { selectFieldAttributesSchema } from "../form-schemas"
-import type { ElementInstanceOf, FormElement, FormElementInstance } from "../form-types"
+import type {
+  ElementInstanceOf,
+  FormElement,
+  FormElementInstance,
+  SubmitFunction,
+} from "../form-types"
 import { BaseProperties } from "./base-properties"
-import { CollapsibleSection } from "./collapsible-section"
 import { OptionsEditor } from "./options-editor"
 import { SwitchProperty } from "./property-fields"
 import { useElementForm } from "./use-element-form"
@@ -44,7 +46,7 @@ export const SelectFieldFormElement: FormElement = {
   }),
   designerButtonElement: {
     icon: ListIcon,
-    label: "Dropdown",
+    label: "Select",
   },
   designerComponent: DesignerComponent,
   formComponent: FormComponent,
@@ -59,9 +61,20 @@ export const SelectFieldFormElement: FormElement = {
 function DesignerComponent({ elementInstance }: { elementInstance: FormElementInstance }) {
   const { extraAttributes } = elementInstance as SelectFieldInstance
   return (
-    <div className="flex w-full items-center gap-2 text-sm text-muted-foreground">
-      <ListIcon className="size-4 shrink-0" />
-      <span className="truncate">{extraAttributes.label || "Dropdown"}</span>
+    <div className="flex w-full flex-col gap-2 py-1">
+      <span className="text-sm font-medium text-foreground">
+        {extraAttributes.label || "Dropdown"}
+        {extraAttributes.required && <span className="ml-1 text-destructive">*</span>}
+      </span>
+      <div className="flex h-9 w-full items-center justify-between rounded-lg border border-border bg-muted/40 px-3">
+        <span className="text-sm text-muted-foreground/60">
+          {extraAttributes.placeholder || "Choose an option"}
+        </span>
+        <CaretDownIcon className="size-3.5 text-muted-foreground/40" />
+      </div>
+      {extraAttributes.helperText && (
+        <span className="text-xs text-muted-foreground">{extraAttributes.helperText}</span>
+      )}
     </div>
   )
 }
@@ -69,14 +82,27 @@ function DesignerComponent({ elementInstance }: { elementInstance: FormElementIn
 function FormComponent({
   elementInstance,
   isInvalid,
-  defaultValue,
+  value,
+  submitValue,
+  errorMessage,
+  onBlur,
 }: {
   elementInstance: FormElementInstance
   isInvalid?: boolean
-  defaultValue?: string
+  value?: string
+  submitValue?: SubmitFunction
+  errorMessage?: string
+  onBlur?: () => void
 }) {
   const { extraAttributes } = elementInstance as SelectFieldInstance
-  const defaultItem = extraAttributes.options.find((o) => o.value === defaultValue) ?? null
+  const elementId = elementInstance.id
+  const selectedItem = extraAttributes.options.find((o) => o.value === value) ?? null
+
+  const handleValueChange = (item: { value: string; label: string } | null) => {
+    if (submitValue) {
+      submitValue(elementId, item?.value ?? "")
+    }
+  }
 
   return (
     <Field>
@@ -85,11 +111,12 @@ function FormComponent({
         {extraAttributes.required && <span className="ml-1 text-destructive">*</span>}
       </FieldLabel>
       <Select
-        value={defaultItem}
+        value={selectedItem}
         items={extraAttributes.options}
         disabled={extraAttributes.disabled}
+        onValueChange={handleValueChange}
       >
-        <SelectTrigger>
+        <SelectTrigger onBlur={onBlur}>
           <SelectValue />
         </SelectTrigger>
         <SelectPopup>
@@ -104,7 +131,9 @@ function FormComponent({
         <FieldDescription>{extraAttributes.helperText}</FieldDescription>
       )}
       {isInvalid && (
-        <FieldError>{extraAttributes.customErrorMessage || "This field is required"}</FieldError>
+        <span className="text-xs text-destructive-foreground">
+          {extraAttributes.customErrorMessage || errorMessage || "This field is required"}
+        </span>
       )}
     </Field>
   )
@@ -122,55 +151,42 @@ function PropertiesComponent({ elementInstance }: { elementInstance: FormElement
         form.handleSubmit()
       }}
     >
-      <BaseProperties
-        form={form}
-        children={
-          <>
-            <Separator />
-            <CollapsibleSection title="Options">
-              <form.Field name="options">
-                {(field) => (
-                  <OptionsEditor
-                    value={field.state.value.map(
-                      (opt: { value: string; label: string }, i: number) => ({
-                        ...opt,
-                        id: `opt-${i}`,
-                      }),
-                    )}
-                    onChange={(options) => {
-                      field.handleChange(options.map(({ id: _, ...rest }) => rest))
-                      form.handleSubmit()
-                    }}
-                  />
-                )}
-              </form.Field>
-            </CollapsibleSection>
-            <Separator />
-            <CollapsibleSection title="Behavior">
-              <form.Field name="allowClear">
-                {(field) => (
-                  <SwitchProperty
-                    field={field}
-                    form={form}
-                    label="Allow Clear"
-                    description="Allow deselecting"
-                  />
-                )}
-              </form.Field>
-              <form.Field name="searchable">
-                {(field) => (
-                  <SwitchProperty
-                    field={field}
-                    form={form}
-                    label="Searchable"
-                    description="Enable filtering options"
-                  />
-                )}
-              </form.Field>
-            </CollapsibleSection>
-          </>
-        }
-      />
+      <BaseProperties form={form}>
+        <form.Field name="options">
+          {(field) => (
+            <OptionsEditor
+              value={field.state.value.map((opt: { value: string; label: string }, i: number) => ({
+                ...opt,
+                id: `opt-${i}`,
+              }))}
+              onChange={(options) => {
+                field.handleChange(options.map(({ id: _, ...rest }) => rest))
+                form.handleSubmit()
+              }}
+            />
+          )}
+        </form.Field>
+        <form.Field name="allowClear">
+          {(field) => (
+            <SwitchProperty
+              field={field}
+              form={form}
+              label="Allow Clear"
+              description="Allow deselecting"
+            />
+          )}
+        </form.Field>
+        <form.Field name="searchable">
+          {(field) => (
+            <SwitchProperty
+              field={field}
+              form={form}
+              label="Searchable"
+              description="Enable filtering options"
+            />
+          )}
+        </form.Field>
+      </BaseProperties>
     </Form>
   )
 }

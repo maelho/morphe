@@ -1,16 +1,16 @@
-import { useForm } from "@tanstack/react-form-start"
+import { useForm } from "@tanstack/react-form"
 import { useEffect } from "react"
 import type { z } from "zod"
 
-import { designerStoreActions } from "../designer/store"
+import { designerStore } from "../designer/store"
 import type { FormElementInstance } from "../form-types"
 
-export function useElementForm(element: FormElementInstance, schema: z.ZodType) {
+export function useElementForm(element: FormElementInstance, schema: z.ZodType<any, any, any>) {
   const form = useForm({
     defaultValues: element.extraAttributes,
-    validators: { onChange: schema as any },
-    onSubmit: async ({ value }) => {
-      designerStoreActions.updateElement(element.id, {
+    validators: { onChange: schema },
+    onSubmit: ({ value }) => {
+      designerStore.actions.updateElement(element.id, {
         ...element,
         extraAttributes: value,
       } as FormElementInstance)
@@ -19,7 +19,6 @@ export function useElementForm(element: FormElementInstance, schema: z.ZodType) 
 
   useEffect(() => {
     form.reset(element.extraAttributes)
-    // form is stable (same instance), only reset when element changes
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [element])
 

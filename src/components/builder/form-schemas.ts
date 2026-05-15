@@ -2,7 +2,7 @@ import { z } from "zod"
 
 import type { ElementsType } from "./form-types"
 
-const colorSchema = z.string().regex(/^(#[0-9a-fA-F]{3,8}|rgb|hsl)/, {
+const colorSchema = z.string().regex(/^(#[0-9a-fA-F]{3,8}|rgb\(\d+%?\s*,|hsl\(\d+%?\s*,)/, {
   message: "Must be a valid CSS color",
 })
 

@@ -1,11 +1,16 @@
 import { CheckSquareIcon } from "@phosphor-icons/react"
 
 import { Checkbox } from "#/components/ui/checkbox"
-import { Field, FieldDescription, FieldError, FieldLabel } from "#/components/ui/field"
+import { Field, FieldDescription, FieldLabel } from "#/components/ui/field"
 import { Form } from "#/components/ui/form"
 
 import { checkboxFieldAttributesSchema } from "../form-schemas"
-import type { ElementInstanceOf, FormElement, FormElementInstance } from "../form-types"
+import type {
+  ElementInstanceOf,
+  FormElement,
+  FormElementInstance,
+  SubmitFunction,
+} from "../form-types"
 import { BaseProperties } from "./base-properties"
 import { useElementForm } from "./use-element-form"
 
@@ -44,9 +49,17 @@ export const CheckboxFieldFormElement: FormElement = {
 function DesignerComponent({ elementInstance }: { elementInstance: FormElementInstance }) {
   const { extraAttributes } = elementInstance as CheckboxFieldInstance
   return (
-    <div className="flex w-full items-center gap-2 text-sm text-muted-foreground">
-      <CheckSquareIcon className="size-4 shrink-0" />
-      <span className="truncate">{extraAttributes.label || "Checkbox"}</span>
+    <div className="flex w-full flex-col gap-2 py-1">
+      <div className="flex items-center gap-3">
+        <div className="size-4 shrink-0 rounded border-2 border-border bg-muted/40" />
+        <span className="text-sm font-medium text-foreground">
+          {extraAttributes.label || "Checkbox"}
+          {extraAttributes.required && <span className="ml-1 text-destructive">*</span>}
+        </span>
+      </div>
+      {extraAttributes.helperText && (
+        <span className="ml-7 text-xs text-muted-foreground">{extraAttributes.helperText}</span>
+      )}
     </div>
   )
 }
@@ -54,19 +67,33 @@ function DesignerComponent({ elementInstance }: { elementInstance: FormElementIn
 function FormComponent({
   elementInstance,
   isInvalid,
-  defaultValue,
+  value,
+  submitValue,
+  errorMessage,
 }: {
   elementInstance: FormElementInstance
   isInvalid?: boolean
-  defaultValue?: string
+  value?: string
+  submitValue?: SubmitFunction
+  errorMessage?: string
 }) {
   const { extraAttributes } = elementInstance as CheckboxFieldInstance
+  const elementId = elementInstance.id
+  const checked = value === CHECKED_VALUE
+
+  const handleCheckedChange = (newChecked: boolean) => {
+    if (submitValue) {
+      submitValue(elementId, newChecked ? CHECKED_VALUE : "")
+    }
+  }
+
   return (
     <Field>
       <FieldLabel className="flex items-center gap-2 font-normal">
         <Checkbox
           disabled={extraAttributes.disabled}
-          defaultChecked={defaultValue === CHECKED_VALUE}
+          checked={checked}
+          onCheckedChange={handleCheckedChange}
           className="mr-2"
         />
         {extraAttributes.label}
@@ -76,9 +103,9 @@ function FormComponent({
         <FieldDescription className="ml-6">{extraAttributes.helperText}</FieldDescription>
       )}
       {isInvalid && (
-        <FieldError className="ml-6">
-          {extraAttributes.customErrorMessage || "This field is required"}
-        </FieldError>
+        <span className="text-xs text-destructive-foreground">
+          {extraAttributes.customErrorMessage || errorMessage || "This field is required"}
+        </span>
       )}
     </Field>
   )

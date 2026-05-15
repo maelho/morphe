@@ -1,10 +1,11 @@
 import { TextTIcon } from "@phosphor-icons/react"
+import { useState } from "react"
 
 import { Form } from "#/components/ui/form"
 
 import { subtitleFieldAttributesSchema } from "../form-schemas"
 import type { ElementInstanceOf, FormElement, FormElementInstance } from "../form-types"
-import { CollapsibleSection } from "./collapsible-section"
+import { SegmentedControl } from "./base-properties"
 import { SelectProperty, StringProperty } from "./property-fields"
 import { useElementForm } from "./use-element-form"
 
@@ -55,9 +56,13 @@ const alignmentClasses = {
 function DesignerComponent({ elementInstance }: { elementInstance: FormElementInstance }) {
   const { extraAttributes } = elementInstance as SubtitleFieldInstance
   return (
-    <div className="flex w-full items-center gap-2 text-sm text-muted-foreground">
-      <TextTIcon className="size-4 shrink-0" />
-      <span className="truncate">{extraAttributes.subtitle || "Subtitle"}</span>
+    <div className="flex w-full flex-col py-1">
+      <p
+        className={`text-muted-foreground ${fontSizeClasses[extraAttributes.fontSize]} ${fontWeightClasses[extraAttributes.fontWeight]} ${alignmentClasses[extraAttributes.alignment]}`}
+        style={extraAttributes.color ? { color: extraAttributes.color } : undefined}
+      >
+        {extraAttributes.subtitle || "Subtitle"}
+      </p>
     </div>
   )
 }
@@ -77,6 +82,12 @@ function FormComponent({ elementInstance }: { elementInstance: FormElementInstan
 function PropertiesComponent({ elementInstance }: { elementInstance: FormElementInstance }) {
   const element = elementInstance as SubtitleFieldInstance
   const form = useElementForm(element, subtitleFieldAttributesSchema)
+  const [activeTab, setActiveTab] = useState<"content" | "typography">("content")
+
+  const tabs = [
+    { value: "content" as const, label: "Content" },
+    { value: "typography" as const, label: "Typography" },
+  ]
 
   return (
     <Form
@@ -86,70 +97,78 @@ function PropertiesComponent({ elementInstance }: { elementInstance: FormElement
         form.handleSubmit()
       }}
     >
-      <CollapsibleSection title="Content">
-        <form.Field name="subtitle">
-          {(field) => <StringProperty field={field} form={form} label="Subtitle" />}
-        </form.Field>
-      </CollapsibleSection>
+      <div className="flex min-h-0 flex-col">
+        <SegmentedControl tabs={tabs} value={activeTab} onChange={setActiveTab} />
+        <div className="flex-1 overflow-y-auto pt-4">
+          {activeTab === "content" && (
+            <div className="space-y-4">
+              <form.Field name="subtitle">
+                {(field) => <StringProperty field={field} form={form} label="Subtitle" />}
+              </form.Field>
+            </div>
+          )}
+          {activeTab === "typography" && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-3">
+                <form.Field name="fontSize">
+                  {(field) => (
+                    <SelectProperty
+                      field={field}
+                      form={form}
+                      label="Font Size"
+                      options={[
+                        { value: "sm", label: "Small" },
+                        { value: "md", label: "Medium" },
+                        { value: "lg", label: "Large" },
+                      ]}
+                    />
+                  )}
+                </form.Field>
+                <form.Field name="fontWeight">
+                  {(field) => (
+                    <SelectProperty
+                      field={field}
+                      form={form}
+                      label="Font Weight"
+                      options={[
+                        { value: "normal", label: "Normal" },
+                        { value: "medium", label: "Medium" },
+                      ]}
+                    />
+                  )}
+                </form.Field>
+              </div>
 
-      <CollapsibleSection title="Typography">
-        <div className="grid grid-cols-2 gap-2">
-          <form.Field name="fontSize">
-            {(field) => (
-              <SelectProperty
-                field={field}
-                form={form}
-                label="Font Size"
-                options={[
-                  { value: "sm", label: "Small" },
-                  { value: "md", label: "Medium" },
-                  { value: "lg", label: "Large" },
-                ]}
-              />
-            )}
-          </form.Field>
-          <form.Field name="fontWeight">
-            {(field) => (
-              <SelectProperty
-                field={field}
-                form={form}
-                label="Font Weight"
-                options={[
-                  { value: "normal", label: "Normal" },
-                  { value: "medium", label: "Medium" },
-                ]}
-              />
-            )}
-          </form.Field>
+              <form.Field name="alignment">
+                {(field) => (
+                  <SelectProperty
+                    field={field}
+                    form={form}
+                    label="Alignment"
+                    options={[
+                      { value: "left", label: "Left" },
+                      { value: "center", label: "Center" },
+                      { value: "right", label: "Right" },
+                    ]}
+                  />
+                )}
+              </form.Field>
+
+              <form.Field name="color">
+                {(field) => (
+                  <StringProperty
+                    field={field}
+                    form={form}
+                    label="Color"
+                    placeholder="#000000 or red"
+                    description="Hex color or named color"
+                  />
+                )}
+              </form.Field>
+            </div>
+          )}
         </div>
-
-        <form.Field name="alignment">
-          {(field) => (
-            <SelectProperty
-              field={field}
-              form={form}
-              label="Alignment"
-              options={[
-                { value: "left", label: "Left" },
-                { value: "center", label: "Center" },
-                { value: "right", label: "Right" },
-              ]}
-            />
-          )}
-        </form.Field>
-
-        <form.Field name="color">
-          {(field) => (
-            <StringProperty
-              field={field}
-              form={form}
-              label="Color"
-              placeholder="#000000 or red"
-              description="Hex color or named color"
-            />
-          )}
-        </form.Field>
-      </CollapsibleSection>
+      </div>
     </Form>
   )
 }

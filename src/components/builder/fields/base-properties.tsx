@@ -1,8 +1,7 @@
 import type { ReactNode } from "react"
+import { useState } from "react"
 
-import { Separator } from "#/components/ui/separator"
-
-import { CollapsibleSection } from "./collapsible-section"
+import { cn } from "#/lib/utils"
 import { StringProperty, SwitchProperty } from "./property-fields"
 
 type BasePropertiesProps = {
@@ -15,6 +14,38 @@ type BasePropertiesProps = {
   extraValidationSettings?: ReactNode
 }
 
+type TabValue = "content" | "validation" | "advanced" | "options"
+
+export function SegmentedControl<T extends string>({
+  tabs,
+  value,
+  onChange,
+}: {
+  tabs: { value: T; label: string }[]
+  value: T
+  onChange: (value: T) => void
+}) {
+  return (
+    <div className="flex w-full rounded-md bg-muted/50 p-0.5 text-xs">
+      {tabs.map((tab) => (
+        <button
+          key={tab.value}
+          type="button"
+          onClick={() => onChange(tab.value)}
+          className={cn(
+            "flex-1 rounded-sm px-2 py-1.5 font-medium transition-colors",
+            value === tab.value
+              ? "bg-background text-foreground shadow-sm"
+              : "text-muted-foreground hover:text-foreground",
+          )}
+        >
+          {tab.label}
+        </button>
+      ))}
+    </div>
+  )
+}
+
 export function BaseProperties({
   form,
   children,
@@ -25,35 +56,47 @@ export function BaseProperties({
   extraValidationSettings,
 }: BasePropertiesProps) {
   const showValidation = hasValidation || !!extraValidationSettings
+  const hasOptions = !!children
 
-  return (
-    <div className="space-y-2">
-      <CollapsibleSection title="Basic Settings">
-        <form.Field name="label">
-          {(field: any) => <StringProperty field={field} form={form} label="Label" />}
-        </form.Field>
-        {hasPlaceholder && (
-          <form.Field name="placeholder">
-            {(field: any) => <StringProperty field={field} form={form} label="Placeholder" />}
-          </form.Field>
-        )}
-        <form.Field name="helperText">
-          {(field: any) => (
-            <StringProperty
-              field={field}
-              form={form}
-              label="Helper Text"
-              description="Appears below the field"
-            />
-          )}
-        </form.Field>
-        {extraBasicSettings}
-      </CollapsibleSection>
+  const tabs = [
+    { value: "content" as TabValue, label: "Content" },
+    ...(showValidation ? [{ value: "validation" as TabValue, label: "Validation" }] : []),
+    ...(hasAdvanced ? [{ value: "advanced" as TabValue, label: "Advanced" }] : []),
+    ...(hasOptions ? [{ value: "options" as TabValue, label: "Options" }] : []),
+  ]
 
-      {showValidation && (
-        <>
-          <Separator />
-          <CollapsibleSection title="Validation" defaultOpen={false}>
+  const [activeTab, setActiveTab] = useState<TabValue>("content")
+
+  const renderContent = () => {
+    switch (activeTab) {
+      case "content":
+        return (
+          <div className="space-y-4">
+            <form.Field name="label">
+              {(field: any) => <StringProperty field={field} form={form} label="Label" />}
+            </form.Field>
+            {hasPlaceholder && (
+              <form.Field name="placeholder">
+                {(field: any) => <StringProperty field={field} form={form} label="Placeholder" />}
+              </form.Field>
+            )}
+            <form.Field name="helperText">
+              {(field: any) => (
+                <StringProperty
+                  field={field}
+                  form={form}
+                  label="Helper Text"
+                  description="Appears below the field"
+                />
+              )}
+            </form.Field>
+            {extraBasicSettings}
+          </div>
+        )
+
+      case "validation":
+        return (
+          <div className="space-y-4">
             {hasValidation && (
               <form.Field name="required">
                 {(field: any) => <SwitchProperty field={field} form={form} label="Required" />}
@@ -73,16 +116,12 @@ export function BaseProperties({
                 )}
               </form.Field>
             )}
-          </CollapsibleSection>
-        </>
-      )}
+          </div>
+        )
 
-      {children}
-
-      {hasAdvanced && (
-        <>
-          <Separator />
-          <CollapsibleSection title="Advanced" defaultOpen={false}>
+      case "advanced":
+        return (
+          <div className="space-y-4">
             <form.Field name="disabled">
               {(field: any) => (
                 <SwitchProperty
@@ -93,9 +132,21 @@ export function BaseProperties({
                 />
               )}
             </form.Field>
-          </CollapsibleSection>
-        </>
-      )}
+          </div>
+        )
+
+      case "options":
+        return <div className="space-y-4">{children}</div>
+
+      default:
+        return null
+    }
+  }
+
+  return (
+    <div className="flex min-h-0 flex-col">
+      <SegmentedControl tabs={tabs} value={activeTab} onChange={setActiveTab} />
+      <div className="flex-1 overflow-y-auto pt-4">{renderContent()}</div>
     </div>
   )
 }
