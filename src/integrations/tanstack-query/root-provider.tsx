@@ -12,5 +12,6 @@ export function getContext() {
 
   return {
     queryClient,
+    user: null,
   }
 }

@@ -21,7 +21,7 @@ type TextareaFieldInstance = ElementInstanceOf<"TextareaField">
 const DEFAULT_ROWS = 4
 
 const defaultAttributes: TextareaFieldInstance["extraAttributes"] = {
-  label: "Long Text",
+  label: "Textarea",
   placeholder: "Write your answer",
   helperText: "",
   required: false,
