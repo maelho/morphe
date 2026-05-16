@@ -27,6 +27,8 @@
     ".output",
     ".wrangler",
     ".netlify",
-    "dist"
+    "dist",
+    "src/components/ui/",
+    "src/generated/prisma/"
   ]
 }

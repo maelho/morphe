@@ -64,6 +64,8 @@
     ".output",
     "build/",
     "worker-configuration.d.ts",
-    "scripts/"
+    "scripts/",
+    "src/components/ui/",
+    "src/generated/prisma/"
   ]
 }

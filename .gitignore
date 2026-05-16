@@ -33,3 +33,4 @@ todos.json
 logs/
 *.log
 __unconfig*
+src/generated/prisma/
